@@ -7,7 +7,8 @@ from .operator import IOperator
 
 class COCO(IOperator, ABC):
 
-    def __init__(self):
+    def __init__(self, annotations):
+        self.annotations = annotations
         pass
 
     def describe(self):

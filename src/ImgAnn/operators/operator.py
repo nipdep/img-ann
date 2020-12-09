@@ -5,7 +5,8 @@ from abc import ABCMeta, abstractmethod
 
 class IOperator:
 
-    def __init__(self):
+    def __init__(self,dataset):
+        self.dataset = dataset
         pass
 
     @abstractmethod
@@ -29,4 +30,13 @@ class IOperator:
 
     def render(self):
         # TODO: show annotated image
+        pass
+
+    @classmethod
+    def datasetReader(cls, data_path: str):
+
+        return cls(object)
+
+    @classmethod
+    def randomizer(cls,num_of_samples: int):
         pass
