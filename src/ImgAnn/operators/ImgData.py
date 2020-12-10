@@ -3,6 +3,18 @@
 import os
 import random
 
+""":cvar
+image_df attributes:
+    - image_id : int
+    - image_name : str
+    - folder : str
+    - path : str (separated by / )
+    - width : int
+    - height : int
+    - format : class [(default) RGB, GBR, SHA ]
+
+"""
+
 
 class ImgData:
 
@@ -32,15 +44,11 @@ class ImgData:
         pos = 1
         for ind in rnd_numbers:
             while ind > img_cnt[pos]:
-                pos+=1
-            position = ind - img_cnt[pos-1]
+                pos += 1
+            position = ind - img_cnt[pos - 1]
             fold = folders[pos]
             img = self.dataset["files"][pos][position]
             imgs.append(img)
             img_paths.append(f"{self.root}/{fold}/{img}")
 
         return imgs, img_paths
-
-
-
-

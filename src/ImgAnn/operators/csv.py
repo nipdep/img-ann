@@ -25,3 +25,7 @@ class CSV(IOperator, ABC):
     def archive(self):
         # TODO: save csv annotation file in the given location
         pass
+
+    def translate(self):
+        # TODO: translate common schema into json compatible format.
+        pass

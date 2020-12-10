@@ -2,6 +2,22 @@
 
 from abc import ABCMeta, abstractmethod
 
+""":param
+ann_df attributes:
+    - obj_id : int
+    - image_id : int
+    - class_id : int
+    - x_min : int
+    - y_min : int
+    - x_max : int
+    - y_max : int
+"""
+""":param
+render format
+    - image path
+    - box : [[(x_min, y_min), (x_max, y_max)], ...]
+    - classes : [str, ...]
+"""
 
 class IOperator:
 
