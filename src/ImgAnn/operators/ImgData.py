@@ -85,8 +85,8 @@ class ImgData:
                     files = file_name
                 else:
                     files = None
-                logger.error("Error : There are no files in the given directory")
         except Exception as error:
+            logger.error("Error : There are no files in the given directory")
             logger.error(error.__traceback__)
 
         return files
