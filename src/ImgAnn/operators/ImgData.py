@@ -134,36 +134,13 @@ class ImgData:
 
         return files
 
-    def random_img(self, num_of_imgs: int):
-        tol_imgs = []
-        img_cnt = [0, ]
-        for imgs in self.dataset["files"]:
-            img_cnt.append(img_cnt[-1] + len(imgs))
-            tol_imgs.extend(imgs)
-        img_cnt = img_cnt[1:]
 
-        rnd_numbers = sorted(random.sample(range(0, len(tol_imgs)), num_of_imgs))
-        folders = self.dataset["folders"]
-        logger.info('folder info: {}'.format(folders))
-        imgs = []
-        img_paths = []
-
-        try:
-            for i in rnd_numbers:
-                point = -1
-                full_path = ''
-                while img_cnt[point + 1] - i < 0:
-                    point += 1
-                else:
-                    # print(point,i,img_sets[point+1])
-                    fld = folders[point + 1]
-                    position = i - img_cnt[point + 1]
-                    fold = folders[point + 1]
-                    img = self.dataset["files"][point + 1][position]
-                    imgs.append(img)
-                    img_paths.append(f"{self.root}/{fold}/{img}")
-        except:
-            logger.warning('calling index is {}, but length of folder is {}'.format(point, len(folders)))
-        logger.info('imgs : {}'.format(imgs))
-        logger.info('img_paths : {}'.format(img_paths))
-        return imgs, img_paths
+    def sample_dataset(self, numOfSamples: int):
+        """
+        :param: numOfSample : number of sample images required to show.
+        :return: Dataframe object from self.dataset with numOFSample records.
+        """
+        numOfrecords, _ = self.dataset.shape
+        rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
+        sample_df = self.dataset.iloc[rnd_numbers,:]
+        return sample_df
