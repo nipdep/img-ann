@@ -5,9 +5,9 @@ python:
 
   # PyPy versions
 # command to install dependencies
-#install:
-#  - pip install -r requirements.txt
-#  - pip install .
+install:
+ - pip install -r requirements.txt
+ - pip install .
 # command to run tests
-#script:
-  #- python -m unittest discover -s test/unit
+script:
+  - python -m unittest discover -s test/skip
