@@ -40,6 +40,9 @@ class ImgData:
 
     @classmethod
     def extract(cls, dataset_path: str):
+        """
+        Extract folder names, all the files in the dataset.pip
+        """
         folders = ImgData.ext_folders(dataset_path)
         files = ImgData.ext_files(dataset_path)
         dataset = {"folders": folders, "files": files}
@@ -56,7 +59,11 @@ class ImgData:
             assert os.path.exists(path), "path does not exists"
             folders = [x[1] for x in os.walk(path) if x[1] != []]
             if folders == []:
-                folders = [os.path.basename(path)]
+                if [x for x in os.walk(path)] == []:
+                    parent_path, file_name = os.path.split(path)
+                    folders = os.path.basename(parent_path)
+                else:
+                    folders = [os.path.basename(path)]
             else:
                 folders = folders[0]
         except Exception as error:
@@ -73,7 +80,11 @@ class ImgData:
             assert os.path.exists(path), "path does not exists"
             files = [x[2] for x in os.walk(path) if x[2] != []]
             if files == []:
-                files = None
+                if [x for x in os.walk(path)] == []:
+                    parent_path, file_name = os.path.split(path)
+                    files = file_name
+                else:
+                    files = None
                 logger.error("Error : There are no files in the given directory")
         except Exception as error:
             logger.error(error.__traceback__)
