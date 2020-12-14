@@ -19,7 +19,7 @@ docutils==0.16
 entrypoints==0.3
 filelock==3.0.12
 idna==2.10
--e git+https://github.com/nipdep/img-ann.git@3e4fe2bd251c663c8454b7e54664d041efb2cd4c#egg=ImgAnn
+-e git+https://github.com/nipdep/img-ann.git@5e57a6026c790cb391c8a81f54ca4724d36a7f5f#egg=ImgAnn
 importlib-metadata==2.1.1
 iniconfig==1.1.1
 ipykernel==5.4.0
@@ -47,6 +47,7 @@ notebook==6.1.5
 numpy==1.19.4
 opencv-python==4.4.0.46
 packaging==20.7
+pandas==1.1.5
 pandocfilters==1.4.3
 parso==0.7.1
 pep517==0.9.1
@@ -64,6 +65,7 @@ pyparsing==2.4.7
 pyrsistent==0.17.3
 pytest==6.1.2
 python-dateutil==2.8.1
+pytz==2020.4
 #pywin32==300
 #pywin32-ctypes==0.2.0
 #pywinpty==0.5.7

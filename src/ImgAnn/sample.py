@@ -28,7 +28,9 @@ class Sample:
                      num_of_samples: int = 5):
         imgdataset = ImgData.extract(data_path)
         # logger.info('folder attr. : {}'.format(imgdataset.dataset['folders']))
-        sample_img, paths = imgdataset.random_img(num_of_samples)
+        samples_df = imgdataset.sample_dataset(num_of_samples)
+        sample_img = list(samples_df.iloc[:,0].values)
+        paths = list(samples_df.iloc[:,2].values)
         if ann_type == 'coco':
             obj = coco.COCO()
         elif ann_type == 'voc':

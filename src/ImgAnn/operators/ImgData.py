@@ -42,6 +42,8 @@ class ImgData:
     @classmethod
     def extract(cls, dataset_path: str):
         """
+        :param: dataset_path: directory of the dataset.
+        :return: ImgData instance
         Extract folder names, all the files in the dataset.pip
         """
         folders = ImgData.ext_folders(dataset_path)
@@ -91,7 +93,8 @@ class ImgData:
     @staticmethod
     def ext_folders(path):
         """
-        Output all the folder names in the given directory.
+        :param: path: absolute or relative path
+        :return: all the folder names in the given directory.
         """
         folders = []
         try:
@@ -112,6 +115,8 @@ class ImgData:
     @staticmethod
     def ext_files(path):
         """
+        :param: path: absolute or relative path
+        :return: list of files in the directory or file name
         Output all the files in the given directory.
         """
         format_list = ['png', 'jpg', 'jpeg']
