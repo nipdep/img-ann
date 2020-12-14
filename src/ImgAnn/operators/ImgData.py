@@ -4,6 +4,7 @@ import os
 import random
 import logging
 import traceback
+import pandas as pd
 
 # create a logger
 logger = logging.getLogger(__name__)
@@ -47,7 +48,45 @@ class ImgData:
         files = ImgData.ext_files(dataset_path)
         dataset = {"folders": folders, "files": files}
         logger.info(' dataset dict : {}'.format(dataset))
-        return cls(root=dataset_path, dataset=dataset)
+
+        folders = ImgData.ext_folders(dataset_path)
+        if type(folders) == str:
+            logger.error("you have entered a file directory. Enter Folder directory.")
+        else:
+            data_list = []
+            if len(folders) == 1:
+                files = ImgData.ext_files(os.path.abspath(dataset_path))
+                if files:
+                    data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path), folders[0], files))
+                else:
+                    logger.error("Error: there are no files in given directory!")
+            else:
+                for folder in folders:
+                    files = ImgData.ext_files(os.path.abspath(dataset_path)+"\\"+folder)
+                    if files:
+                        data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path+"\\"+folder), folder, files))
+                    else:
+                        continue
+
+            if data_list:
+                data_df = pd.DataFrame.from_records(data_list, columns=['name', 'folder', 'path'])
+            else:
+                logger.error("there was some error, record tuples are empty.")
+        return cls(root=dataset_path, dataset=data_df)
+
+    @staticmethod
+    def list_creator(root: str, folder: str, files: list):
+        """
+
+        :param root: absolute path for the folder
+        :param folder: parent folder of a file
+        :param files: all the files
+        :return: [(name, folder, path), ..]
+        """
+        tol_list = []
+        for file in files:
+            tol_list.append((file, folder, root+"\\"+file))
+        return tol_list
 
     @staticmethod
     def ext_folders(path):
@@ -58,8 +97,8 @@ class ImgData:
         try:
             assert os.path.exists(path), "path does not exists"
             folders = [x[1] for x in os.walk(path) if x[1] != []]
-            if folders == []:
-                if [x for x in os.walk(path)] == []:
+            if not folders:
+                if not [x for x in os.walk(path)]:
                     parent_path, file_name = os.path.split(path)
                     folders = os.path.basename(parent_path)
                 else:
@@ -67,7 +106,7 @@ class ImgData:
             else:
                 folders = folders[0]
         except Exception as error:
-            logger.error(error.__traceback__)
+            logger.exception("There is no folder in given directory.")
         return folders
 
     @staticmethod
@@ -75,22 +114,25 @@ class ImgData:
         """
         Output all the files in the given directory.
         """
+        format_list = ['png', 'jpg', 'jpeg']
         files = []
         try:
             assert os.path.exists(path), "path does not exists"
+            # TODO: and x[2].split('.')[-1].lowercase() in format_list
             files = [x[2] for x in os.walk(path) if x[2] != []]
-            if files == []:
-                if [x for x in os.walk(path)] == []:
+            if not files:
+                if not [x for x in os.walk(path)]:
                     parent_path, file_name = os.path.split(path)
                     files = file_name
                 else:
                     files = None
+            else:
+                if len(files) == 1:
+                    files = files[0]
         except Exception as error:
-            logger.error("Error : There are no files in the given directory")
-            logger.error(error.__traceback__)
+            logger.exception("Error : There are no files in the given directory")
 
         return files
-
 
     def random_img(self, num_of_imgs: int):
         tol_imgs = []
@@ -121,7 +163,7 @@ class ImgData:
                     imgs.append(img)
                     img_paths.append(f"{self.root}/{fold}/{img}")
         except:
-            logger.warning('calling index is {}, but length of folder is {}'.format(point,len(folders)))
+            logger.warning('calling index is {}, but length of folder is {}'.format(point, len(folders)))
         logger.info('imgs : {}'.format(imgs))
         logger.info('img_paths : {}'.format(img_paths))
         return imgs, img_paths
