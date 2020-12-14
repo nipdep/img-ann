@@ -15,8 +15,7 @@ logger.setLevel(logging.INFO)
 # logger.addHandler(file_handler)
 
 from .operators.ImgData import ImgData
-from .operators import coco,csv,pascalvoc
-
+from .operators import coco, csv, pascalvoc
 
 
 class Sample:
@@ -29,8 +28,8 @@ class Sample:
         imgdataset = ImgData.extract(data_path)
         # logger.info('folder attr. : {}'.format(imgdataset.dataset['folders']))
         samples_df = imgdataset.sample_dataset(num_of_samples)
-        sample_img = list(samples_df.iloc[:,0].values)
-        paths = list(samples_df.iloc[:,2].values)
+        sample_img = list(samples_df.iloc[:, 0].values)
+        paths = list(samples_df.iloc[:, 2].values)
         if ann_type == 'coco':
             obj = coco.COCO()
         elif ann_type == 'voc':

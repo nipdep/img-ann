@@ -7,7 +7,6 @@ here = pathlib.Path(__file__).parent.resolve()
 # Get the long description from the README file
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
-
 setup(
 
     name='ImgAnn',
@@ -49,7 +48,7 @@ setup(
     # package_dir={'': 'src'},
 
     # py_modules = ["helloworld"],
-    packages=find_packages(include='./src.*'),
+    packages=['src/ImgAnn','src/ImgAnn/operators'],
 
     python_requires='>=3.5, <4',
 
