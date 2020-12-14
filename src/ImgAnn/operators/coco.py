@@ -2,15 +2,28 @@
 
 from abc import ABC
 import json
+import logging
+
+# setup logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# set fileHandler and formatter
+# file_handler = logging.FileHandler('../logs/ImgAnn/operators/log_coco.txt')
+# formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+# file_handler.setFormatter(formatter)
+
+# add file handler to logger
+# logger.addHandler(file_handler)
 
 from .operator import IOperator
 
 
 class COCO(IOperator, ABC):
 
-    def __init__(self, annotations):
-        self.annotations = annotations
-        pass
+    # def __init__(self, annotations):
+    #     self.annotations = annotations
+    #     pass
 
     def describe(self):
         # TODO: coco file description outputs (to - superClass )
@@ -24,8 +37,8 @@ class COCO(IOperator, ABC):
         objects = ann_data["annotations"]
         for obj in objects:
             obj_id = obj['image_id']
-            if (obj_id in image_id):
-                if (obj_id not in ann_data):
+            if obj_id in image_id:
+                if obj_id not in ann_data:
                     ann_filt_data[obj_id] = {"name": images_name[image_id.index(obj_id)],
                                              "box": [self.__normalized2KITTI(obj['bbox'])],
                                              "category_id": [obj["category_id"]]}
@@ -41,7 +54,7 @@ class COCO(IOperator, ABC):
         reodered_ann_data = [ann_filt_data[i] for i in image_id]
 
         orderd = sorted(ann_filt_data.values(), key=lambda x: names.index(x['name']))
-        print(reodered_ann_data, names)
+        logger.info('just extra data : {}, {}'.format(reodered_ann_data, names))
 
         return orderd, cat_dict
 

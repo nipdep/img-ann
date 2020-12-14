@@ -46,10 +46,10 @@ setup(
 
     keywords='sample, setuptools, development',
 
-    package_dir={'': 'src'},
+    # package_dir={'': 'src'},
 
-    py_modules = ["helloworld"],
-    # packages=find_packages(where='src'),
+    # py_modules = ["helloworld"],
+    packages=find_packages(),
 
     python_requires='>=3.5, <4',
 
