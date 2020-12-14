@@ -49,7 +49,7 @@ setup(
     # package_dir={'': 'src'},
 
     # py_modules = ["helloworld"],
-    packages=find_packages(),
+    packages=find_packages(include='./src.*'),
 
     python_requires='>=3.5, <4',
 
@@ -67,11 +67,11 @@ setup(
 
     # data_files=[('my_data', ['data/data_file'])],  # Optional
 
-    entry_points={  # Optional
-        'console_scripts': [
-            'hello=helloworld:main',
-        ],
-    },
+    # entry_points={  # Optional
+    #     'console_scripts': [
+    #         'hello=sample:main',
+    #     ],
+    # },
 
     project_urls={  # Optional
         'Bug Reports': 'https://github.com/nipdep/img-ann/issues',
