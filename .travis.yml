@@ -8,9 +8,6 @@ install:
 script:
   - python -m unittest discover -s test/skip
 
-after_success:
-  - codecov
-
 deploy:
   provider: pypi
   user: __token__
