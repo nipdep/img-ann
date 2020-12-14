@@ -1,13 +1,21 @@
 language: python
 python:
-  - "2.7"
-  - "3.8"
-  # PyPy versions
-  - "pypy"   # currently Python 2.7.13, PyPy 7.1.1
-  - "pypy3"  # currently Python 3.6.1,  PyPy 7.1.1-beta0
-# command to install dependencies
+  - "3.7"
 install:
   - pip install -r requirements.txt
+  - pip install codecov
   - pip install .
-# command to run tests
-script: pytest
+script:
+  - python -m unittest discover -s test/skip
+
+after_success:
+  - codecov
+
+deploy:
+  provider: pypi
+  user: __token__
+  password: $pypi-travis
+  distributions: "sdist bdist_wheel"
+  skip_existing: true
+  on:
+    branch: staging
