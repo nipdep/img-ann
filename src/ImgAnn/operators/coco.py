@@ -2,6 +2,7 @@
 
 from abc import ABC
 import json
+import os
 import logging
 
 # setup logger
@@ -21,9 +22,11 @@ from .operator import IOperator
 
 class COCO(IOperator, ABC):
 
-    # def __init__(self, annotations):
-    #     self.annotations = annotations
-    #     pass
+    def __init__(self, dataset):
+        super().__init__(dataset)
+        self._dataset = dataset
+        self._annotations
+        self._classes
 
     def describe(self):
         # TODO: coco file description outputs (to - superClass )
@@ -66,8 +69,14 @@ class COCO(IOperator, ABC):
         :return: generalize pandas.DataFrame type object.
         """
         # TODO: output:: all the annotations in the file
-        with open(path) as fp:
-            ann_data = json.load(fp)
+        if os.path.exists(path):
+            with open(path) as fp:
+                ann_data = json.load(fp)
+            self.updateDataset(ann_data["images"])
+            self.extractAnnotation(ann_data["annotations"])
+            self.extractClasses(ann_data["categories"])
+        else:
+            logger.error(f"Error: entered path <{path}> is invalid.")
 
 
 
@@ -88,3 +97,13 @@ class COCO(IOperator, ABC):
         xmax = int(o_x + o_width / 2)
         ymax = int(o_y + o_height / 2)
         return [(xmin, ymin), (xmax, ymax)]
+
+    def updateDataset(self):
+        pass
+
+    def extractAnnotation(self):
+
+        pass
+
+    def extractClasses(self):
+        pass

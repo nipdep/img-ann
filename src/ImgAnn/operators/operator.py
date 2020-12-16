@@ -36,6 +36,9 @@ class IOperator:
 
     __dataset = pd.DataFrame()
 
+    def __init__(self, dataset):
+        self.__dataset = dataset
+
     def set_dataset(self, df):
         """
         :param df: pandas.DataFrame type object with attr. defined in the ImgData.py file
