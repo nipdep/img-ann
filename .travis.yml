@@ -11,9 +11,8 @@ script:
 
 deploy:
   provider: pypi
-  user: "nipdep"
-  password: "W7gfK9uV"
-  server: https://test.pypi.org/legacy/
+  user: "__token__"
+  password: "pypi-AgEIcHlwaS5vcmcCJDg1OTMxZTY5LTkwMTUtNGRlMy05NzQyLThmOTJhN2Y0NWY4NwACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgZ3-2Odmnb43twZ4rABwRhGdXEQ2R36i6jrj3XHejocg"
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
