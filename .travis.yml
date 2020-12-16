@@ -10,9 +10,9 @@ script:
   - python -m unittest discover -s test/skip
 
 deploy:
-  provider: pypi
-  user: "__token__"
-  password: "pypi-AgEIcHlwaS5vcmcCJDg1OTMxZTY5LTkwMTUtNGRlMy05NzQyLThmOTJhN2Y0NWY4NwACJXsicGVybWlzc2lvbnMiOiAidXNlciIsICJ2ZXJzaW9uIjogMX0AAAYgZ3-2Odmnb43twZ4rABwRhGdXEQ2R36i6jrj3XHejocg"
+  repository: https://pypi.python.org/pypi
+  user: "nipdep"
+  password: "W7gfK9uV"
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
