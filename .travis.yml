@@ -11,11 +11,12 @@ script:
 
 deploy:
   provider: pypi
-  user: __token__
-  password: $SAMPLE_TOKEN
+  user: "nipdep"
+  password: "W7gfK9uV"
   server: https://test.pypi.org/legacy/
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
     branch: main
+    tag: true
 
