@@ -1,4 +1,4 @@
-https://travis-ci.com/nipdep/img-ann.svg?branch=main
+![Build Status](https://travis-ci.com/nipdep/img-ann.svg?branch=main)
 # img-ann
  // description
 image annotation file operation python library
