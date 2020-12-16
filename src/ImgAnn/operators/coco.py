@@ -27,6 +27,7 @@ class COCO(IOperator, ABC):
 
     def describe(self):
         # TODO: coco file description outputs (to - superClass )
+
         pass
 
     def sample(self, ann_data, names: list):
@@ -59,9 +60,17 @@ class COCO(IOperator, ABC):
         return orderd, cat_dict
 
     def extract(self, path: str):
+        """
+
+        :param path: string, relative / absolute path
+        :return: generalize pandas.DataFrame type object.
+        """
         # TODO: output:: all the annotations in the file
         with open(path) as fp:
             ann_data = json.load(fp)
+
+
+
         return ann_data
 
     def archive(self):

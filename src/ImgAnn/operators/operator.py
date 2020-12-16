@@ -3,6 +3,13 @@
 from abc import ABCMeta, abstractmethod
 import matplotlib.pyplot as plt
 import cv2
+import pandas as pd
+import logging
+
+#set logger
+logger = logging.getLogger(__name__)
+# set logger level
+logger.setLevel(logging.INFO)
 
 """:param
 ann_df attributes:
@@ -21,32 +28,57 @@ render format
     - classes : [str, ...]
 """
 
-class IOperator:
 
+class IOperator:
     # def __init__(self,dataset):
     #     self.dataset = dataset
     #     pass
 
-    @abstractmethod
-    def describe(self): raise NotImplementedError
+    __dataset = pd.DataFrame()
+
+    def set_dataset(self, df):
+        """
+        :param df: pandas.DataFrame type object with attr. defined in the ImgData.py file
+
+        save new dataset into the objects' private variable.
+        """
+        if type(df) is pd.DataFrame:
+            self.__dataset = df
+        else :
+            logger.error(f"Data type of df : {type(df)} not compatible with database object.")
+
+    def get_dataset(self):
+        """
+        :return pandas.DataFrame
+        """
+        return self.__dataset
+
 
     @abstractmethod
-    def sample(self, ann_data, names: list): raise NotImplementedError
+    def describe(self):
+        raise NotImplementedError
 
     @abstractmethod
-    def extract(self, path: str): raise NotImplementedError
+    def sample(self, ann_data, names: list):
+        raise NotImplementedError
 
     @abstractmethod
-    def translator(self): raise NotImplementedError
+    def extract(self, path: str):
+        raise NotImplementedError
 
     @abstractmethod
-    def archive(self): raise NotImplementedError
+    def translator(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def archive(self):
+        raise NotImplementedError
 
     def descFormat(self):
         # TODO: make nice format to show descibe result.
         pass
 
-    def render(self,path: str, boxes: list, cls: list, rect_th=2, text_size=0.5, text_th=1):
+    def render(self, path: str, boxes: list, cls: list, rect_th=2, text_size=0.5, text_th=1):
         # TODO: show annotated image
         img = cv2.imread(path)
         # img = cv2.cvtColor(img)
@@ -64,12 +96,11 @@ class IOperator:
         plt.show()
         return
 
-
     @classmethod
     def datasetReader(cls, data_path: str):
 
         return cls(object)
 
     @classmethod
-    def randomizer(cls,num_of_samples: int):
+    def randomizer(cls, num_of_samples: int):
         pass
