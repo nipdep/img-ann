@@ -4,6 +4,7 @@ from abc import ABC
 import json
 import os
 import logging
+import pandas as pd
 
 # setup logger
 logger = logging.getLogger(__name__)
@@ -91,6 +92,11 @@ class COCO(IOperator, ABC):
         pass
 
     def __normalized2KITTI(self,box):
+        """
+
+        :param box: [X, Y, width, highest]
+        :return: [(xmin, ymin), (xmax, ymax)]
+        """
         o_x, o_y, o_width, o_height = box
         xmin = int(o_x - o_width / 2)
         ymin = int(o_y - o_height / 2)
@@ -98,12 +104,40 @@ class COCO(IOperator, ABC):
         ymax = int(o_y + o_height / 2)
         return [(xmin, ymin), (xmax, ymax)]
 
-    def updateDataset(self):
+    def updateDataset(self, images):
+        """
+
+        :param images: image attributes in the .json file
+        :return: add id, image width & height columns to self.dataset
+        """
+        dataset_imgs = list(self._dataset.iloc[:,0].values)
+        ann_imgs = []
+        ann_id = []
+        img_width = []
+        img_height = []
+        for obj in images:
+            if obj["file_name"] in dataset_imgs:
+                ann_imgs.append(obj["file_name"])
+                ann_id.append(obj["id"])
+                img_width.append(obj["width"])
+                img_height.append(obj["height"])
+        id_series = pd.Series(ann_id, index=ann_imgs)
+        width_series = pd.Series(img_width, index=ann_imgs)
+        height_series = pd.Series(img_height, index=ann_imgs)
+
+        self._dataset["image_id"] = id_series
+        self._dataset["width"] = width_series
+        self._dataset["height"] = height_series
+        return
+
+    def extractAnnotation(self, anns):
+        """
+
+        :param anns: annotation attribute in the .json file
+        :return: None , add self.annotations attr.
+        """
+        
         pass
 
-    def extractAnnotation(self):
-
-        pass
-
-    def extractClasses(self):
+    def extractClasses(self, cats):
         pass
