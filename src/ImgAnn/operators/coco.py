@@ -26,8 +26,7 @@ class COCO(IOperator, ABC):
     def __init__(self, dataset):
         super().__init__(dataset)
         self._dataset = dataset
-        self._annotations
-        self._classes
+
 
     def describe(self):
         # TODO: coco file description outputs (to - superClass )
@@ -65,17 +64,16 @@ class COCO(IOperator, ABC):
 
     def extract(self, path: str):
         """
-
+        all the annotations in the file convert into general dataframe object.
         :param path: string, relative / absolute path
         :return: generalize pandas.DataFrame type object.
         """
-        # TODO: output:: all the annotations in the file
         if os.path.exists(path):
             with open(path) as fp:
                 ann_data = json.load(fp)
-            self.updateDataset(ann_data["images"])
-            self.extractAnnotation(ann_data["annotations"])
-            self.extractClasses(ann_data["categories"])
+            self.__updateDataset(ann_data["images"])
+            self.__extractAnnotation(ann_data["annotations"])
+            self.__extractClasses(ann_data["categories"])
         else:
             logger.error(f"Error: entered path <{path}> is invalid.")
 
@@ -102,7 +100,7 @@ class COCO(IOperator, ABC):
         ymax = int(o_y + o_height / 2)
         return [(xmin, ymin), (xmax, ymax)]
 
-    def updateDataset(self, images):
+    def __updateDataset(self, images):
         """
 
         :param images: image attributes in the .json file
@@ -121,7 +119,7 @@ class COCO(IOperator, ABC):
                     img_width.append(obj["width"])
                     img_height.append(obj["height"])
                 except Exception as error:
-                    logger.exception("annotation file doesn't in accept the format.")
+                    logger.exception("ERROR: annotation file doesn't in accept the format.")
         id_series = pd.Series(ann_id, index=ann_imgs)
         width_series = pd.Series(img_width, index=ann_imgs)
         height_series = pd.Series(img_height, index=ann_imgs)
@@ -131,7 +129,7 @@ class COCO(IOperator, ABC):
         self._dataset["height"] = height_series
         return
 
-    def extractAnnotation(self, anns):
+    def __extractAnnotation(self, anns):
         """
 
         :param anns: annotation attribute in the .json file
@@ -145,7 +143,7 @@ class COCO(IOperator, ABC):
                 cls_id = obj["category_id"]
                 min_tup, max_tup = self.__normalized2KITTI(obj["bbox"])
             except Exception as error:
-                logger.exception("annotation file doesn't in accept the format.")
+                logger.exception("ERROR: annotation file doesn't in accept the format.")
             else:
                 ann_list.append((obj_id, img_id, cls_id, min_tup[0], min_tup[1], max_tup[0], max_tup[1]))
         else:
@@ -155,5 +153,21 @@ class COCO(IOperator, ABC):
             else:
                 self.annotations = pd.DataFrame()
 
-    def extractClasses(self, cats):
-        pass
+    def __extractClasses(self, cats):
+        """
+
+        :param cats: categories attribute in the .json file
+        :return: dictionary object of type {id : class-name}
+        """
+        if len(cats) > 0:
+            class_dict = {}
+            for obj in cats:
+                try:
+                    class_dict[obj["id"]] = obj["name"]
+                except Exception as error:
+                    logger.exception("ERROR: annotation file doesn't in accept the format.")
+            else:
+                self.classes = class_dict
+        else:
+            logger.error("There are no distinctive class definition in the annotation.")
+            self.classes = {}
