@@ -7,6 +7,7 @@ import traceback
 import pandas as pd
 
 # create a logger
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 # set log Level

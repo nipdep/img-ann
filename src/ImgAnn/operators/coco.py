@@ -5,18 +5,13 @@ import json
 import os
 import logging
 import pandas as pd
+import random
 
 # setup logger
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# set fileHandler and formatter
-# file_handler = logging.FileHandler('../logs/ImgAnn/operators/log_coco.txt')
-# formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-# file_handler.setFormatter(formatter)
-
-# add file handler to logger
-# logger.addHandler(file_handler)
 
 from .operator import IOperator
 
@@ -27,40 +22,34 @@ class COCO(IOperator, ABC):
         super().__init__(dataset)
         self._dataset = dataset
 
+    def get_dataset(self):
+        return self._dataset
 
     def describe(self):
         # TODO: coco file description outputs (to - superClass )
 
         pass
 
-    def sample(self, ann_data, names: list):
-        # TODO: output:: list of annotation results from annotation file
-        ann_filt_data = {}
-        images_name = [elem['file_name'] for elem in ann_data["images"] if (elem['file_name'] in names)]
-        image_id = [elem['id'] for elem in ann_data["images"] if (elem['file_name'] in names)]
-        objects = ann_data["annotations"]
-        for obj in objects:
-            obj_id = obj['image_id']
-            if obj_id in image_id:
-                if obj_id not in ann_data:
-                    ann_filt_data[obj_id] = {"name": images_name[image_id.index(obj_id)],
-                                             "box": [self.__normalized2KITTI(obj['bbox'])],
-                                             "category_id": [obj["category_id"]]}
-                else:
-                    ann_filt_data[obj_id]["box"].append(self.__normalized2KITTI(obj['bbox']))
-                    ann_filt_data[obj_id]["category_id"].append(obj["category_id"])
-                # ann_filt_data.append(obj)
-        categ = ann_data["categories"]
-        cat_dict = {}
-        for cat in categ:
-            cat_dict[cat["id"]] = cat["name"]
+    def sample(self, numOfSamples):
+        """
+        choose set of images randomly and get bounding boxes of them
+        :return: dictionary list of [{"image_id" : "name", "classes" : [], "categories" : []}]
+        """
+        numOfrecords, _ = self._dataset.shape
+        rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
+        sample_df = self._dataset.iloc[rnd_numbers, :]
 
-        reodered_ann_data = [ann_filt_data[i] for i in image_id]
-
-        orderd = sorted(ann_filt_data.values(), key=lambda x: names.index(x['name']))
-        logger.info('just extra data : {}, {}'.format(reodered_ann_data, names))
-
-        return orderd, cat_dict
+        sampled_anns = self.annotations.loc[
+                       self.annotations.loc[:, "image_id"].isin([sample_df.loc[:, "image_id"].values]), :]
+        image_list = [sample_df.loc[:, "image_id"].values]
+        final_list = []
+        for image_id in image_list:
+            ann_for_image = self.annotations.loc[image_id == sampled_anns.loc[:, "image_id"], :]
+            spares_list = ann_for_image.values.tolist()
+            ordered_dict = self.__listGen(spares_list)
+            ordered_dict["image_id"] = image_id
+            final_list.append(ordered_dict)
+        return final_list
 
     def extract(self, path: str):
         """
@@ -76,8 +65,7 @@ class COCO(IOperator, ABC):
             self.__extractClasses(ann_data["categories"])
         else:
             logger.error(f"Error: entered path <{path}> is invalid.")
-
-        return ann_data
+        return
 
     def archive(self):
         # TODO: save coco annotation file in the given location
@@ -108,25 +96,29 @@ class COCO(IOperator, ABC):
         """
         dataset_imgs = list(self._dataset.iloc[:, 0].values)
         ann_imgs = []
-        ann_id = []
-        img_width = []
-        img_height = []
+        ann_id = {}
+        img_width = {}
+        img_height = {}
         for obj in images:
             if obj["file_name"] in dataset_imgs:
                 try:
                     ann_imgs.append(obj["file_name"])
-                    ann_id.append(obj["id"])
-                    img_width.append(obj["width"])
-                    img_height.append(obj["height"])
+                    ann_id[obj["file_name"]] = obj["id"]
+                    img_width[obj["file_name"]] = obj["width"]
+                    img_height[obj["file_name"]] = obj["height"]
                 except Exception as error:
                     logger.exception("ERROR: annotation file doesn't in accept the format.")
-        id_series = pd.Series(ann_id, index=ann_imgs)
-        width_series = pd.Series(img_width, index=ann_imgs)
-        height_series = pd.Series(img_height, index=ann_imgs)
-
-        self._dataset["image_id"] = id_series
-        self._dataset["width"] = width_series
-        self._dataset["height"] = height_series
+        logger.info(f"num of images in dataset : {len(dataset_imgs)} / num of images in annotation : {len(ann_imgs)}")
+        if len(dataset_imgs) > len(ann_imgs):
+            self._dataset = self._dataset.loc[self._dataset.loc[:, "name"].isin(ann_imgs), :]
+            logger.warning("WARNING: all the images had not annotated!")
+        # id_series = dict(zip(ann_id,ann_imgs))
+        # width_series = dict(zip(img_width, ann_imgs))
+        # height_series = dict(zip(img_height, ann_imgs))
+        logger.info("Working upto here.")
+        self._dataset["image_id"] = self._dataset["name"].map(ann_id)
+        self._dataset.loc[:, "width"] = self._dataset.loc[:, "name"].map(img_width)
+        self._dataset.loc[:, "height"] = self._dataset.loc[:, "name"].map(img_height)
         return
 
     def __extractAnnotation(self, anns):
@@ -148,7 +140,9 @@ class COCO(IOperator, ABC):
                 ann_list.append((obj_id, img_id, cls_id, min_tup[0], min_tup[1], max_tup[0], max_tup[1]))
         else:
             if ann_list:
-                ann_df = pd.DataFrame.from_records(ann_list, columns=['obj_id', 'image_id', 'class_id', 'x_min', 'y_min', 'x_max', 'y_max'])
+                ann_df = pd.DataFrame.from_records(ann_list,
+                                                   columns=['obj_id', 'image_id', 'class_id', 'x_min', 'y_min', 'x_max',
+                                                            'y_max'])
                 self.annotations = ann_df
             else:
                 self.annotations = pd.DataFrame()
@@ -171,3 +165,17 @@ class COCO(IOperator, ABC):
         else:
             logger.error("There are no distinctive class definition in the annotation.")
             self.classes = {}
+
+    def __listGen(self, data_list):
+        """
+
+        :param data_list: [class_id , x_min, y_min, x_max, y_max]
+        :return: two list {"classes" : [classes, ..] , "bbox" : [[(x_min, y_min), (x_max, y_max)], ..]}
+        """
+        bounding_boxes = []
+        classes = []
+        for obj in data_list:
+            classes.append(obj["class_id"])
+            bounding_boxes.append([(obj["x_min"], obj["y_min"]), (obj["x_max"], obj["y_max"])])
+        final_dict = {"classes": classes, "bbox": bounding_boxes}
+        return final_dict
