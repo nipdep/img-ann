@@ -123,7 +123,6 @@ class ImgData:
         files = []
         try:
             assert os.path.exists(path), "path does not exists"
-            # TODO: and x[2].split('.')[-1].lowercase() in format_list
             files = [x[2] for x in os.walk(path) if x[2] != []]
             if not files:
                 if not [x for x in os.walk(path)]:

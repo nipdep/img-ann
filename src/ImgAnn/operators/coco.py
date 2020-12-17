@@ -79,8 +79,6 @@ class COCO(IOperator, ABC):
         else:
             logger.error(f"Error: entered path <{path}> is invalid.")
 
-
-
         return ann_data
 
     def archive(self):
@@ -91,7 +89,7 @@ class COCO(IOperator, ABC):
         # TODO: translate common schema into json compatible format.
         pass
 
-    def __normalized2KITTI(self,box):
+    def __normalized2KITTI(self, box):
         """
 
         :param box: [X, Y, width, highest]
@@ -110,17 +108,20 @@ class COCO(IOperator, ABC):
         :param images: image attributes in the .json file
         :return: add id, image width & height columns to self.dataset
         """
-        dataset_imgs = list(self._dataset.iloc[:,0].values)
+        dataset_imgs = list(self._dataset.iloc[:, 0].values)
         ann_imgs = []
         ann_id = []
         img_width = []
         img_height = []
         for obj in images:
             if obj["file_name"] in dataset_imgs:
-                ann_imgs.append(obj["file_name"])
-                ann_id.append(obj["id"])
-                img_width.append(obj["width"])
-                img_height.append(obj["height"])
+                try:
+                    ann_imgs.append(obj["file_name"])
+                    ann_id.append(obj["id"])
+                    img_width.append(obj["width"])
+                    img_height.append(obj["height"])
+                except Exception as error:
+                    logger.exception("annotation file doesn't in accept the format.")
         id_series = pd.Series(ann_id, index=ann_imgs)
         width_series = pd.Series(img_width, index=ann_imgs)
         height_series = pd.Series(img_height, index=ann_imgs)
@@ -136,8 +137,23 @@ class COCO(IOperator, ABC):
         :param anns: annotation attribute in the .json file
         :return: None , add self.annotations attr.
         """
-        
-        pass
+        ann_list = []
+        for obj in anns:
+            try:
+                obj_id = obj["id"]
+                img_id = obj["image_id"]
+                cls_id = obj["category_id"]
+                min_tup, max_tup = self.__normalized2KITTI(obj["bbox"])
+            except Exception as error:
+                logger.exception("annotation file doesn't in accept the format.")
+            else:
+                ann_list.append((obj_id, img_id, cls_id, min_tup[0], min_tup[1], max_tup[0], max_tup[1]))
+        else:
+            if ann_list:
+                ann_df = pd.DataFrame.from_records(ann_list, columns=['obj_id', 'image_id', 'class_id', 'x_min', 'y_min', 'x_max', 'y_max'])
+                self.annotations = ann_df
+            else:
+                self.annotations = pd.DataFrame()
 
     def extractClasses(self, cats):
         pass
