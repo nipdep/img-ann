@@ -111,6 +111,7 @@ class COCO(IOperator, ABC):
         if len(dataset_imgs) > len(ann_imgs):
             self._dataset = self._dataset.loc[self._dataset.loc[:, "name"].isin(ann_imgs), :]
             logger.warning("WARNING: all the images had not annotated!")
+        self._dataset = self._dataset.copy()
         self._dataset["image_id"] = self._dataset["name"].map(ann_id)
         self._dataset.loc[:, "width"] = self._dataset.loc[:, "name"].map(img_width)
         self._dataset.loc[:, "height"] = self._dataset.loc[:, "name"].map(img_height)

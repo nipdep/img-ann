@@ -50,7 +50,6 @@ class ImgData:
         folders = ImgData.ext_folders(dataset_path)
         files = ImgData.ext_files(dataset_path)
         dataset = {"folders": folders, "files": files}
-        logger.info(' dataset dict : {}'.format(dataset))
 
         folders = ImgData.ext_folders(dataset_path)
         if type(folders) == str:
