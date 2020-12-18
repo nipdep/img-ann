@@ -38,16 +38,16 @@ class COCO(IOperator, ABC):
         numOfrecords, _ = self._dataset.shape
         rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
         sample_df = self._dataset.iloc[rnd_numbers, :]
-
-        sampled_anns = self.annotations.loc[
-                       self.annotations.loc[:, "image_id"].isin([sample_df.loc[:, "image_id"].values]), :]
-        image_list = [sample_df.loc[:, "image_id"].values]
+        image_list = list(sample_df.loc[:, "image_id"].values)
+        image_paths = list(sample_df.loc[:, "path"].values)
+        sampled_anns = self.annotations.loc[self.annotations.loc[:, "image_id"].isin(image_list), :]
         final_list = []
-        for image_id in image_list:
-            ann_for_image = self.annotations.loc[image_id == sampled_anns.loc[:, "image_id"], :]
+        for image_id, image_path in zip(image_list, image_paths):
+            ann_for_image = sampled_anns.loc[sampled_anns.loc[:, "image_id"] == image_id,:]
             spares_list = ann_for_image.values.tolist()
             ordered_dict = self.__listGen(spares_list)
             ordered_dict["image_id"] = image_id
+            ordered_dict["path"] = image_path
             final_list.append(ordered_dict)
         return final_list
 
@@ -108,14 +108,9 @@ class COCO(IOperator, ABC):
                     img_height[obj["file_name"]] = obj["height"]
                 except Exception as error:
                     logger.exception("ERROR: annotation file doesn't in accept the format.")
-        logger.info(f"num of images in dataset : {len(dataset_imgs)} / num of images in annotation : {len(ann_imgs)}")
         if len(dataset_imgs) > len(ann_imgs):
             self._dataset = self._dataset.loc[self._dataset.loc[:, "name"].isin(ann_imgs), :]
             logger.warning("WARNING: all the images had not annotated!")
-        # id_series = dict(zip(ann_id,ann_imgs))
-        # width_series = dict(zip(img_width, ann_imgs))
-        # height_series = dict(zip(img_height, ann_imgs))
-        logger.info("Working upto here.")
         self._dataset["image_id"] = self._dataset["name"].map(ann_id)
         self._dataset.loc[:, "width"] = self._dataset.loc[:, "name"].map(img_width)
         self._dataset.loc[:, "height"] = self._dataset.loc[:, "name"].map(img_height)
@@ -169,13 +164,13 @@ class COCO(IOperator, ABC):
     def __listGen(self, data_list):
         """
 
-        :param data_list: [class_id , x_min, y_min, x_max, y_max]
+        :param data_list: [obj_id, class_id, class_id , x_min, y_min, x_max, y_max]
         :return: two list {"classes" : [classes, ..] , "bbox" : [[(x_min, y_min), (x_max, y_max)], ..]}
         """
         bounding_boxes = []
         classes = []
         for obj in data_list:
-            classes.append(obj["class_id"])
-            bounding_boxes.append([(obj["x_min"], obj["y_min"]), (obj["x_max"], obj["y_max"])])
+            classes.append(obj[2])
+            bounding_boxes.append([(obj[3], obj[4]), (obj[5], obj[6])])
         final_dict = {"classes": classes, "bbox": bounding_boxes}
         return final_dict
