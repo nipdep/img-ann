@@ -48,7 +48,7 @@ setup(
     # package_dir={'': 'src'},
 
     # py_modules = ["helloworld"],
-    packages=['src/ImgAnn','src/ImgAnn/operators'],
+    packages=['ImgAnn','ImgAnn/operators'],
 
     python_requires='>=3.5, <4',
 

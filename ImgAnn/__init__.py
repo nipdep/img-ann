@@ -1,11 +1,11 @@
-from . import convert
-from . import sample
+from .convert import Convertor
+from .sample import Sample
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 __all__ = [
-    'convert',
-    'sample'
+    'Convertor',
+    'Sample'
 ]
