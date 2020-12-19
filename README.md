@@ -16,7 +16,8 @@ The package is support Python 3.4 and above.
  
  - To get N number of annotated images randomly.
     you can use coco format, pascalVOC format or csv format as annotation format.
-    <annotation type> keywords can be from \['coco', 'csv', 'voc']
+    <annotation type> keywords can be from \['coco', 'csv', 'voc'::wq
+    ]
  `
  from ImgAnn import Sample
  Sample.show_samples(<image dataset dir> : string, <annotation file dit> : string, <number of images> : int, <annotation type> : string= 'coco' ) 
