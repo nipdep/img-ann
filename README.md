@@ -10,7 +10,7 @@ You can install the Real Python Feed Reader from [PyPI](https://pypi.org/project
 
 pip install ImgAnn
 
-The package is support Python 3.4 and above.
+The package is support Python 3.6 and above.
  
 ## Usage
 
