@@ -1,0 +1,13 @@
+logging
+numpy
+pandas
+matplotlib
+opencv-python
+json
+
+[dev]
+check-manifest
+pytest>=3.7
+
+[test]
+coverage

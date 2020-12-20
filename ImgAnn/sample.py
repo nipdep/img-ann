@@ -17,6 +17,16 @@ logger.setLevel(logging.INFO)
 from .operators.ImgData import ImgData
 from .operators import coco, csv, pascalvoc
 
+"""
+### obj_lis : attributes ###
+{
+    ["classes" : [int, ..],
+    "bbox" : [[(x_min, y_min), (x_max, y_max)], ..],
+    "image_id" : int,
+    "path: : str], ..
+}
+"""
+
 
 class Sample:
 
@@ -31,22 +41,21 @@ class Sample:
         sample_img = list(samples_df.iloc[:, 0].values)
         paths = list(samples_df.iloc[:, 2].values)
         if ann_type == 'coco':
-            obj = coco.COCO()
+            obj = coco.COCO(imgdataset.dataset)
         elif ann_type == 'voc':
-            obj = pascalvoc.PascalVOC()
+            obj = pascalvoc.PascalVOC(imgdataset.dataset)
         elif ann_type == 'csv':
-            obj = csv.CSV()
+            obj = csv.CSV(imgdataset.dataset)
         elif ann_type == 'yolo':
-            obj = csv.IOperator()
+            obj = csv.IOperator(imgdataset.dataset)
 
         ann_data = obj.extract(ann_path)
-        obj_list, cat_dict = obj.sample(ann_data, sample_img)
-
-        for i in range(len(paths)):
-            path = paths[i]
-            obj_data = obj_list[i]
+        obj_list = obj.sample(num_of_samples)
+        cat_dict = obj.classes
+        for img_obj in obj_list:
+            path = img_obj["path"]
+            obj_data = img_obj["bbox"]
             # print(cat_dict, obj_data["category_id"])
-            cat_name = [cat_dict[j] for j in obj_data["category_id"]]
-            print(path, obj_data['name'])
-            obj.render(path, obj_data["box"], cat_name)
+            cat_name = [cat_dict[j] for j in img_obj["classes"]]
+            obj.render(path, obj_data, cat_name)
         return

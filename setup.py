@@ -11,7 +11,7 @@ setup(
 
     name='ImgAnn',
 
-    version='0.0.2',
+    version='0.1.0',
 
     description='image annotation file operation provider.',
 
@@ -48,11 +48,11 @@ setup(
     # package_dir={'': 'src'},
 
     # py_modules = ["helloworld"],
-    packages=['src/ImgAnn','src/ImgAnn/operators'],
+    packages=['ImgAnn','ImgAnn/operators'],
 
     python_requires='>=3.5, <4',
 
-    install_requires=['peppercorn'],
+    install_requires=['numpy', 'pandas', 'matplotlib', 'opencv-python'],
 
     extras_require={
         'dev': ['check-manifest',

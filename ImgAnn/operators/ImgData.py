@@ -7,6 +7,7 @@ import traceback
 import pandas as pd
 
 # create a logger
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 # set log Level
@@ -49,7 +50,6 @@ class ImgData:
         folders = ImgData.ext_folders(dataset_path)
         files = ImgData.ext_files(dataset_path)
         dataset = {"folders": folders, "files": files}
-        logger.info(' dataset dict : {}'.format(dataset))
 
         folders = ImgData.ext_folders(dataset_path)
         if type(folders) == str:
@@ -123,7 +123,6 @@ class ImgData:
         files = []
         try:
             assert os.path.exists(path), "path does not exists"
-            # TODO: and x[2].split('.')[-1].lowercase() in format_list
             files = [x[2] for x in os.walk(path) if x[2] != []]
             if not files:
                 if not [x for x in os.walk(path)]:
