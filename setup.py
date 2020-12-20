@@ -52,7 +52,7 @@ setup(
 
     python_requires='>=3.5, <4',
 
-    install_requires=['logging', 'numpy', 'pandas', 'matplotlib', 'opencv-python', 'json'],
+    install_requires=['numpy', 'pandas', 'matplotlib', 'opencv-python', 'json'],
 
     extras_require={
         'dev': ['check-manifest',
