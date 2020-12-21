@@ -6,9 +6,8 @@ import cv2
 import pandas as pd
 import logging
 
-#set logger
+# set logger
 logger = logging.getLogger(__name__)
-# set logger level
 logger.setLevel(logging.INFO)
 
 """:param
@@ -30,11 +29,6 @@ render format
 
 
 class IOperator:
-    # def __init__(self,dataset):
-    #     self.dataset = dataset
-    #     pass
-
-    __dataset = pd.DataFrame()
 
     def __init__(self, dataset):
         self.__dataset = dataset
@@ -47,7 +41,7 @@ class IOperator:
         """
         if type(df) is pd.DataFrame:
             self.__dataset = df
-        else :
+        else:
             logger.error(f"Data type of df : {type(df)} not compatible with database object.")
 
     def get_dataset(self):
@@ -55,7 +49,6 @@ class IOperator:
         :return pandas.DataFrame
         """
         return self.__dataset
-
 
     @abstractmethod
     def describe(self):
@@ -81,17 +74,17 @@ class IOperator:
         # TODO: make nice format to show descibe result.
         pass
 
-    def render(self, path: str, boxes: list, cls: list, rect_th=2, text_size=0.5, text_th=1):
+    def render(self, path: str, boxes: list, cls: list, rect_th=1, text_size=0.5, text_th=1):
         # TODO: show annotated image
         img = cv2.imread(path)
-        # img = cv2.cvtColor(img)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         for i in range(len(boxes)):
             # print(boxes[i][0], boxes[i][1])
-            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(0, 255, 0), thickness=rect_th)
+            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14,14,14), thickness=rect_th)
             cv2.putText(img, cls[i],
                         boxes[i][0], cv2.FONT_HERSHEY_COMPLEX,
-                        text_size, color=(0, 255, 0), thickness=text_th)
+                        text_size, color=(1,1,1), thickness=text_th)
         plt.figure(figsize=(30, 30))
         plt.imshow(img)
         plt.xticks([])
