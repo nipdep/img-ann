@@ -1,9 +1,7 @@
-logging
 numpy
 pandas
 matplotlib
 opencv-python
-json
 
 [dev]
 check-manifest
