@@ -35,11 +35,8 @@ class Sample:
                      ann_path: str,
                      ann_type: str = 'coco',
                      num_of_samples: int = 5):
+
         imgdataset = ImgData.extract(data_path)
-        # logger.info('folder attr. : {}'.format(imgdataset.dataset['folders']))
-        samples_df = imgdataset.sample_dataset(num_of_samples)
-        sample_img = list(samples_df.iloc[:, 0].values)
-        paths = list(samples_df.iloc[:, 2].values)
         if ann_type == 'coco':
             obj = coco.COCO(imgdataset.dataset)
         elif ann_type == 'voc':
@@ -48,14 +45,15 @@ class Sample:
             obj = csv.CSV(imgdataset.dataset)
         elif ann_type == 'yolo':
             obj = csv.IOperator(imgdataset.dataset)
+        else:
+            logger.error(f"ERROR: {ann_type} is not a valid annotation type.")
 
-        ann_data = obj.extract(ann_path)
+        obj.extract(ann_path)
         obj_list = obj.sample(num_of_samples)
         cat_dict = obj.classes
         for img_obj in obj_list:
             path = img_obj["path"]
             obj_data = img_obj["bbox"]
-            # print(cat_dict, obj_data["category_id"])
             cat_name = [cat_dict[j] for j in img_obj["classes"]]
             obj.render(path, obj_data, cat_name)
         return

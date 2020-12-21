@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-from src.ImgAnn.operators.ImgData import ImgData
+from ImgAnn.operators.ImgData import ImgData
 
 
 
