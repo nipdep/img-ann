@@ -1,21 +1,12 @@
-# image dataset sampling method implementation class
-
+# -*- coding: utf-8 -*-
 import logging
+
+from .operators.ImgData import ImgData
+from .operators import coco, csv, pascalvoc
 
 # setup logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-# set fileHandler and formatter
-# file_handler = logging.FileHandler('../logs/ImgAnn/log_sample.txt')
-# formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-# file_handler.setFormatter(formatter)
-#
-# add file handler to logger
-# logger.addHandler(file_handler)
-
-from .operators.ImgData import ImgData
-from .operators import coco, csv, pascalvoc
 
 """
 ### obj_lis : attributes ###
@@ -33,8 +24,16 @@ class Sample:
     @classmethod
     def show_samples(cls, data_path: str,
                      ann_path: str,
-                     ann_type: str = 'coco',
-                     num_of_samples: int = 5):
+                     num_of_samples: int = 5,
+                     ann_type: str = 'coco'):
+        """render set of random images from dataset.
+
+        :param data_path: relative path current folder, or absolute path to the main folder of the image dataset
+        :param ann_path: relative path current folder, or absolute path to the main folder of the annotated file
+        :param ann_type: one of type from ['coco', 'voc', 'csv', 'yolo']
+        :param num_of_samples: number of sample images in integer format.
+        :return: render sequence of images.
+        """
 
         imgdataset = ImgData.extract(data_path)
         if ann_type == 'coco':
@@ -46,7 +45,7 @@ class Sample:
         elif ann_type == 'yolo':
             obj = csv.IOperator(imgdataset.dataset)
         else:
-            logger.error(f"ERROR: {ann_type} is not a valid annotation type.")
+            assert Exception(f"ERROR: {ann_type} is not a valid annotation type.")
 
         obj.extract(ann_path)
         obj_list = obj.sample(num_of_samples)
