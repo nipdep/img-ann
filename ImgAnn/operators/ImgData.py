@@ -58,15 +58,17 @@ class ImgData:
             data_list = []
             if len(folders) == 1:
                 files = ImgData.ext_files(os.path.abspath(dataset_path))
+                imgFiles = ImgData.__filterImg(files)
                 if files:
-                    data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path), folders[0], files))
+                    data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path), folders[0], imgFiles))
                 else:
                     logger.error("Error: there are no files in given directory!")
             else:
                 for folder in folders:
                     files = ImgData.ext_files(os.path.abspath(dataset_path)+"\\"+folder)
+                    imgFiles = ImgData.__filterImg(files)
                     if files:
-                        data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path+"\\"+folder), folder, files))
+                        data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path+"\\"+folder), folder, imgFiles))
                     else:
                         continue
 
@@ -148,3 +150,19 @@ class ImgData:
         rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
         sample_df = self.dataset.iloc[rnd_numbers,:]
         return sample_df
+
+    @staticmethod
+    def __filterImg(file_list: list):
+        """
+
+        :param file_list: list of image file names
+        :return: list of image files names
+        """
+        files_type = ["png", "jpg", "jpeg"]
+        img_list = []
+        for file in file_list:
+            ext = file.split(".")[-1].lower()
+            if ext in files_type:
+                img_list.append(file)
+
+        return  img_list
