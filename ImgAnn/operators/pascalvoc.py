@@ -27,7 +27,7 @@ class PascalVOC(IOperator, ABC):
     def extract(self, path: str):
         """ extract annotation data when input the path to .xml files
 
-        :param path:
+        :param path: string, relative / absolute path for annotation folder
         :return:
         """
         files_list = self.__extractFiles(path)
@@ -84,6 +84,12 @@ class PascalVOC(IOperator, ABC):
             assert Exception(f"The entered path <{path}> is not valid.")
 
     def __DFRefiner(self, ann_df):
+        """
+        create pd.DataFrame with columns of [ "obj_id", "image_id", "class_id", "x_min", "y_min", "x_max", "y_max" ] and
+        define self.annotations and self.classes
+        :param ann_df: pd.Dataframe with columns of [ 'x_min', 'y_min', 'x_max', 'y_max', 'class', 'image_id' ]
+        :return: None
+        """
         ann_df = ann_df.copy()
 
         cats = list(ann_df.loc[:, "class"].unique())
@@ -98,6 +104,13 @@ class PascalVOC(IOperator, ABC):
         self.classes = dict(zip(range(1,n_cats+1),cats))
 
     def __FileReader(self, file_path: str):
+        """ read individual xml files extract data, create pd.DataFrame files
+
+        :param file_path: absolute path to the single .xml file
+        :return: tuple of two list
+         img_data = [ filename, width, height ]
+         obj_list = [ class, xmin, ymin, xmax, ymax ]
+        """
         ann_tree = ET.parse(file_path)
         ann_root = ann_tree.getroot()
         try:
@@ -117,6 +130,11 @@ class PascalVOC(IOperator, ABC):
             return img_data, obj_list
 
     def __get_coco_annotation_from_obj(self, obj):
+        """ read <object> block in xml file
+
+        :param obj: <object> block in the .xml file
+        :return: a list of object attrs. [ class, xmin, ymin, xmax, ymax ]
+        """
         try:
             label = obj.find('name').text
             bndbox = obj.find('bndbox')
