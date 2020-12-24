@@ -8,7 +8,7 @@ such as, annotation type converting \[coco format, pascalVOC format, csv format]
 ## Installation
 You can install the Real Python Feed Reader from [PyPI](https://pypi.org/project/ImgAnn/):
 
-$`pip install ImgAnn` \
+$`pip install ImgAnn`
 
 The package is support Python 3.6 and above.
  
