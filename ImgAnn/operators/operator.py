@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 import cv2
 import pandas as pd
 import logging
+import random
 
 # set logger
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -31,7 +33,7 @@ render format
 class IOperator:
 
     def __init__(self, dataset):
-        self.__dataset = dataset
+        self._dataset = dataset
 
     def set_dataset(self, df):
         """
@@ -40,7 +42,7 @@ class IOperator:
         save new dataset into the objects' private variable.
         """
         if type(df) is pd.DataFrame:
-            self.__dataset = df
+            self._dataset = df
         else:
             logger.error(f"Data type of df : {type(df)} not compatible with database object.")
 
@@ -48,14 +50,10 @@ class IOperator:
         """
         :return pandas.DataFrame
         """
-        return self.__dataset
+        return self._dataset
 
     @abstractmethod
     def describe(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def sample(self, ann_data, names: list):
         raise NotImplementedError
 
     @abstractmethod
@@ -69,6 +67,28 @@ class IOperator:
     @abstractmethod
     def archive(self):
         raise NotImplementedError
+
+
+    def sample(self, numOfSamples):
+        """
+        choose set of images randomly and get bounding boxes of them
+        :return: dictionary list of [{"image_id" : "name", "classes" : [], "categories" : []}]
+        """
+        numOfrecords, _ = self._dataset.shape
+        rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
+        sample_df = self._dataset.iloc[rnd_numbers, :]
+        image_list = list(sample_df.loc[:, "image_id"].values)
+        image_paths = list(sample_df.loc[:, "path"].values)
+        sampled_anns = self.annotations.loc[self.annotations.loc[:, "image_id"].isin(image_list), :]
+        final_list = []
+        for image_id, image_path in zip(image_list, image_paths):
+            ann_for_image = sampled_anns.loc[sampled_anns.loc[:, "image_id"] == image_id, :]
+            spares_list = ann_for_image.values.tolist()
+            ordered_dict = self.__listGen(spares_list)
+            ordered_dict["image_id"] = image_id
+            ordered_dict["path"] = image_path
+            final_list.append(ordered_dict)
+        return final_list
 
     def descFormat(self):
         # TODO: make nice format to show descibe result.
@@ -100,3 +120,17 @@ class IOperator:
     @classmethod
     def randomizer(cls, num_of_samples: int):
         pass
+
+    def __listGen(self, data_list):
+        """
+
+        :param data_list: [obj_id, class_id, class_id , x_min, y_min, x_max, y_max]
+        :return: two list {"classes" : [classes, ..] , "bbox" : [[(x_min, y_min), (x_max, y_max)], ..]}
+        """
+        bounding_boxes = []
+        classes = []
+        for obj in data_list:
+            classes.append(obj[2])
+            bounding_boxes.append([(obj[3], obj[4]), (obj[5], obj[6])])
+        final_dict = {"classes": classes, "bbox": bounding_boxes}
+        return final_dict

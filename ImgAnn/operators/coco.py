@@ -30,27 +30,6 @@ class COCO(IOperator, ABC):
 
         pass
 
-    def sample(self, numOfSamples):
-        """
-        choose set of images randomly and get bounding boxes of them
-        :return: dictionary list of [{"image_id" : "name", "classes" : [], "categories" : []}]
-        """
-        numOfrecords, _ = self._dataset.shape
-        rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
-        sample_df = self._dataset.iloc[rnd_numbers, :]
-        image_list = list(sample_df.loc[:, "image_id"].values)
-        image_paths = list(sample_df.loc[:, "path"].values)
-        sampled_anns = self.annotations.loc[self.annotations.loc[:, "image_id"].isin(image_list), :]
-        final_list = []
-        for image_id, image_path in zip(image_list, image_paths):
-            ann_for_image = sampled_anns.loc[sampled_anns.loc[:, "image_id"] == image_id,:]
-            spares_list = ann_for_image.values.tolist()
-            ordered_dict = self.__listGen(spares_list)
-            ordered_dict["image_id"] = image_id
-            ordered_dict["path"] = image_path
-            final_list.append(ordered_dict)
-        return final_list
-
     def extract(self, path: str):
         """
         all the annotations in the file convert into general dataframe object.
@@ -162,16 +141,3 @@ class COCO(IOperator, ABC):
             logger.error("There are no distinctive class definition in the annotation.")
             self.classes = {}
 
-    def __listGen(self, data_list):
-        """
-
-        :param data_list: [obj_id, class_id, class_id , x_min, y_min, x_max, y_max]
-        :return: two list {"classes" : [classes, ..] , "bbox" : [[(x_min, y_min), (x_max, y_max)], ..]}
-        """
-        bounding_boxes = []
-        classes = []
-        for obj in data_list:
-            classes.append(obj[2])
-            bounding_boxes.append([(obj[3], obj[4]), (obj[5], obj[6])])
-        final_dict = {"classes": classes, "bbox": bounding_boxes}
-        return final_dict
