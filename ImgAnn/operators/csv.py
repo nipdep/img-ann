@@ -39,13 +39,41 @@ class CSV(IOperator, ABC):
         else:
             assert Exception(f"entered directory {path}, does not exsist.")
 
-    def archive(self):
-        # TODO: save csv annotation file in the given location
-        pass
+    def archive(self, location, df):
+        """ save csv annotation file in the given location
+
+        :param location: .csv file saving location
+        :param df: finalized DataFrame object from the self.translate()
+        :return: None
+        """
+        if os.path.exists(os.path.dirname(location)):
+            if df:
+                df.to_csv(location, index=False)
+            else:
+                logger.exception("The DataFrame file is empty.")
+        else:
+            logger.exception("There are no such parent directory to file save.")
 
     def translate(self):
-        # TODO: translate common schema into json compatible format.
-        pass
+        """ translate common schema into csv compatible format.
+
+        :return: pd.DataFrame object with ["filename", "width", "height", "class", "xmin", "ymin", "xmax", "ymax"] columns.
+        """
+        csv_ann_df = self.annotations.copy()
+
+        class_series = pd.Series(self.classes)
+        csv_ann_df["class"] = csv_ann_df["class_id"].map(class_series)
+
+        filename_series = pd.Series(self._dataset.loc[:, "image_id"].values(),
+                                    index=self._dataset.loc[:, "image_name"].values())
+        csv_ann_df["filename"] = csv_ann_df["image_id"].map(filename_series)
+
+        if pd.isnull(csv_ann_df["class"]) or pd.isnull(csv_ann_df["filename"]):
+            logger.error("There are not enough data in past annotation file to create annotation file.")
+        else:
+            csv_ann_df.rename(columns={"x_min": "xmin", "y_min": "ymin", "x_max": "xmax", "y_max": "ymax"},
+                              inplace=True)
+            return csv_ann_df.loc[: ["filename", "width", "height", "class", "xmin", "ymin", "xmax", "ymax"]]
 
     def __dfUpdates(self, full_df):
         """add id, image width & height columns to self.dataset
@@ -69,7 +97,8 @@ class CSV(IOperator, ABC):
         full_df.drop("class", inplace=True, axis=1)
 
         full_df["obj_id"] = pd.Series(range(1, full_df.shape[0] + 1))
-        full_df.rename(columns={"filename": "name", "xmin" : "x_min", "ymin" : "y_min", "xmax" : "x_max", "ymax" : "y_max"}, inplace=True)
+        full_df.rename(columns={"filename": "name", "xmin": "x_min", "ymin": "y_min", "xmax": "x_max", "ymax": "y_max"},
+                       inplace=True)
 
         return full_df
 
@@ -95,7 +124,7 @@ class CSV(IOperator, ABC):
         """
         full_df = full_df.copy()
         col_lis = ["obj_id", "image_id", "class_id", "x_min", "y_min", "x_max", "y_max"]
-        if all( y in list(full_df.columns) for y in col_lis):
+        if all(y in list(full_df.columns) for y in col_lis):
             ann_df = full_df.loc[:, col_lis]
             self.annotations = ann_df
         else:

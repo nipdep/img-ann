@@ -53,10 +53,6 @@ class IOperator:
         return self._dataset
 
     @abstractmethod
-    def describe(self):
-        raise NotImplementedError
-
-    @abstractmethod
     def extract(self, path: str):
         raise NotImplementedError
 
@@ -68,6 +64,13 @@ class IOperator:
     def archive(self):
         raise NotImplementedError
 
+    def descFormat(self):
+        # TODO: make nice format to show descibe result.
+        pass
+
+    def describe(self):
+        # TODO: annotation file description
+        pass
 
     def sample(self, numOfSamples):
         """
@@ -90,10 +93,6 @@ class IOperator:
             final_list.append(ordered_dict)
         return final_list
 
-    def descFormat(self):
-        # TODO: make nice format to show descibe result.
-        pass
-
     def render(self, path: str, boxes: list, cls: list, rect_th=1, text_size=0.5, text_th=1):
         # TODO: show annotated image
         img = cv2.imread(path)
@@ -111,15 +110,6 @@ class IOperator:
         plt.yticks([])
         plt.show()
         return
-
-    @classmethod
-    def datasetReader(cls, data_path: str):
-
-        return cls(object)
-
-    @classmethod
-    def randomizer(cls, num_of_samples: int):
-        pass
 
     def __listGen(self, data_list):
         """

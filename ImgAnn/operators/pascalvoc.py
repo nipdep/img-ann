@@ -20,10 +20,6 @@ class PascalVOC(IOperator, ABC):
         super().__init__(dataset)
         self._dataset = dataset
 
-    def describe(self):
-        # TODO: xml file description outputs (to - superClass )
-        pass
-
     def extract(self, path: str):
         """ extract annotation data when input the path to .xml files
 
