@@ -51,13 +51,32 @@ class PascalVOC(IOperator, ABC):
         else:
             logger.error(f"obj_list has not many attrs. : {len(obj_list[0])} or obj_list is empty : {len(obj_list)}")
 
-    def archive(self):
-        # TODO: save pascalVOC annotation file in the given location
-        pass
+    def archive(self, location, data):
+        """ save pascalVOC annotation file in the given location
+
+        :param location: .xml file saving location
+        :param data: .xml daa bundle
+        :return:
+        """
+        try:
+            tree = ET.ElementTree(data)
+            tree.write(location, 'r')
+        except Exception as error:
+            logger.exception(error)
+            assert error
 
     def translate(self):
-        # TODO: translate common schema into json compatible format.
-        pass
+        """ translate common schema into json compatible format.
+
+        :return: none
+        """
+        for index, row in self._dataset.iterrows():
+            ann_list = self.__filterImgObj(row['image_id'])
+            box = self.__xmlFomatter(row, ann_list)
+            if box:
+                yield box, row['name']
+            else:
+                yield None
 
     def __extractFiles(self, path: str):
         """
@@ -153,3 +172,45 @@ class PascalVOC(IOperator, ABC):
         partial_df = image_df.copy()
         res_df = pd.merge(self._dataset, partial_df, on="name")
         self._dataset = res_df
+
+    def __filterImgObj(self, img_id):
+        """ get row for specific image_id.
+
+        :param img_id: [int] image_id in the self.annotations
+        :return: all the row that carry given image_id as a list.
+        """
+        filtered_list = self._dataset.loc[self._dataset["image_id"] == int(img_id), :].to_list()
+        return filtered_list
+
+    def __xmlFomatter(self, image_data, ann_data):
+        """ build the structure of the .xml file with data.
+
+        :param image_data: dictionary for data in self._dataset
+        :param ann_data: return values from self.__filterImgObj
+        :return: complete .xml object
+        """
+        try:
+            ann = ET.Element("annotation")
+            ET.SubElement(ann, 'folder').text = image_data['folder']
+            ET.SubElement(ann, 'filename').text = image_data['name']
+            ET.SubElement(ann, 'path').text = image_data['path']
+            ET.SubElement(ann, 'size')
+            size = ET.SubElement(ann, 'size')
+            ET.SubElement(size, 'width').text = image_data['width']
+            ET.SubElement(size, 'height').text = image_data['height']
+            ET.SubElement(size, 'depth').text = 3
+            for line in ann_data:
+                obj = ET.SubElement(ann, 'object')
+                ET.SubElement(obj, 'name').text = self.classes[line[2]]
+                ET.SubElement(obj, 'pose').text = 'Unspecified'
+                ET.SubElement(obj, 'truncated').text = 0
+                ET.SubElement(obj, 'difficult').text = 0
+                bbox = ET.SubElement(obj, 'bndbox')
+                ET.SubElement(bbox, 'xmin').text = line[3]
+                ET.SubElement(bbox, 'ymin').text = line[4]
+                ET.SubElement(bbox, 'xmax').text = line[5]
+                ET.SubElement(bbox, 'ymax').text = line[6]
+            return ann
+        except Exception as error:
+            logger.exception(error)
+            assert error

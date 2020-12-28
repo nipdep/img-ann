@@ -41,18 +41,70 @@ class COCO(IOperator, ABC):
             logger.error(f"Error: entered path <{path}> is invalid.")
         return
 
-    def archive(self):
-        # TODO: save coco annotation file in the given location
-        pass
+    def archive(self, location, data):
+        """ save coco annotation file in the given location
+
+        :param location: .json file saving directory
+        :param data: dictionary to save as .json
+        :return: none
+        """
+        if os.path.exists(os.path.dirname(location)):
+            if data:
+                with open(location, 'r') as pf:
+                    json.dump(data, pf)
+            else:
+                logger.exception("The DataFrame file is empty.")
+        else:
+            logger.exception("There are no such parent directory to file save.")
 
     def translate(self):
-        # TODO: translate common schema into json compatible format.
-        pass
+        """ translate common schema into json compatible format.
+
+        :return:
+        """
+        data = {}
+        data["annotations"] = []
+        data["images"] = []
+        data["categories"] = []
+
+        filenames = self._dataset["image_name"].to_list()
+        widths = self._dataset["width"].to_self()
+        heights = self._dataset["height"].to_list()
+        ids = self._dataset["image_id"].to_list()
+        compact_image_list = zip(filenames, heights, widths, ids)
+
+        for line in compact_image_list:
+            data["images"].append(self.__list2dict(['file_name', 'height', 'width', 'id'], line))
+
+        obj_ids = self.annotations["obj_id"]
+        image_ids = self.annotations["image_id"]
+        cat_ids = self.annotations["class_id"]
+        xmins = self.annotations["x_min"]
+        ymins = self.annotations["y_min"]
+        xmaxs = self.annotations["x_max"]
+        ymaxs = self.annotations["y_max"]
+        bboxs = []
+        areas = []
+        for i in range(len(xmaxs)):
+            bboxs.append(xmins[i], ymins[i], xmaxs[i], ymaxs[i])
+            areas.append((xmaxs[i]-xmins[i])*(ymaxs[i]-ymins[i]))
+
+        compact_ann_list = zip(obj_ids, image_ids, cat_ids, areas, bboxs)
+        for line in compact_ann_list:
+            data["annotations"].append(self.__list2dict(["id", "image_id", "category_id", "area", "bbox", "ignore", "iscrowd"],line))
+
+        class_ids = list(self.classes.keys())
+        class_names = list(self.classes.values())
+        compact_class_list = zip(class_ids, class_names)
+        for line in compact_class_list:
+            data["categories"].append(self.__list2dict(["id", "name", "supercategory"], line,padd='none'))
+
+        return data
 
     def __normalized2KITTI(self, box):
         """
 
-        :param box: [X, Y, width, highest]
+        :param box: [X, Y, width, height]
         :return: [(xmin, ymin), (xmax, ymax)]
         """
         o_x, o_y, o_width, o_height = box
@@ -135,4 +187,34 @@ class COCO(IOperator, ABC):
         else:
             logger.error("There are no distinctive class definition in the annotation.")
             self.classes = {}
+
+    def __KITTI2normilized(self, xmin, ymin, xmax, ymax):
+        """
+
+        :param xmin:
+        :param ymin:
+        :param xmax:
+        :param ymax:
+        :return: [X, Y, width, height]
+        """
+        width = xmax - xmin
+        height = ymax - ymin
+        x0 = (xmax + xmin)/2
+        y0 = (ymin + ymax)/2
+        return [x0, y0, width, height]
+
+    def __list2dict(self, tags, values, padd = 0):
+        nt = len(tags)
+        nv = len(values)
+        if nt >= nv:
+            ret_dict = {}
+            for i in range(nt):
+                if i < nv:
+                    ret_dict[tags[i]] = values[i]
+                else:
+                    ret_dict[tags[i]] = padd
+            else:
+                return ret_dict
+        else:
+            logger.exception(f"There are not enough attributes to create .json file.\n #tags : {nt} & #attrs : {nv}")
 

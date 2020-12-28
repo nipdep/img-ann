@@ -29,6 +29,11 @@ render format
     - classes : [str, ...]
 """
 
+""":param
+classes
+{class_id[int] : class_name[str], ... }
+"""
+
 
 class IOperator:
 

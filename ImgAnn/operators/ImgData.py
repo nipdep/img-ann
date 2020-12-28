@@ -24,7 +24,7 @@ logger.setLevel(logging.INFO)
 """:cvar
 image_df attributes:
     - image_id : int
-    - image_name : str
+    - name : str
     - folder : str
     - path : str (separated by / )
     - width : int
