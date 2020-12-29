@@ -25,6 +25,7 @@ class COCO(IOperator, ABC):
     def get_dataset(self):
         return self._dataset
 
+
     def extract(self, path: str):
         """
         all the annotations in the file convert into general dataframe object.

@@ -57,6 +57,29 @@ class IOperator:
         """
         return self._dataset
 
+    def get_annotations(self):
+        """
+        :return: data in annotation file [pd.Dataframe] & classes in a dictionary
+        """
+        try:
+            if self.annotations and self.classes:
+                return self.annotations, self.classes
+            else:
+                return
+        except Exception as error:
+            logger.exception(error)
+            assert error
+
+    def set_annotations(self, ann, classes):
+        """
+
+        :param ann: data in annotation file [pd.Dataframe]
+        :param classes: classes in a dictionary
+        :return:
+        """
+        self.annotations = ann
+        self.classes = classes
+
     @abstractmethod
     def extract(self, path: str):
         raise NotImplementedError
