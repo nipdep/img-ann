@@ -125,7 +125,16 @@ class IOperator:
         return final_list
 
     def render(self, path: str, boxes: list, cls: list, rect_th=1, text_size=0.5, text_th=1):
-        # TODO: show annotated image
+        """ show annotated image
+
+        :param path: directory to image
+        :param boxes: all the bounding boxes in [[(),()], ...]
+        :param cls: list of class names
+        :param rect_th: thickness of he box :int
+        :param text_size: font size
+        :param text_th: thickness of the text :int
+        :return: matplotlib.pyplot.plt object / a image.
+        """
         img = cv2.imread(path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
