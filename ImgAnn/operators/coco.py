@@ -1,22 +1,23 @@
-# Instance Object for COCO annotation format
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from abc import ABC
 import json
 import os
 import logging
 import pandas as pd
-import random
 
 # setup logger
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-
 from .operator import IOperator
 
 
 class COCO(IOperator, ABC):
+
+    """ Instance Object for COCO annotation format """
 
     def __init__(self, dataset):
         super().__init__(dataset)
@@ -24,7 +25,6 @@ class COCO(IOperator, ABC):
 
     def get_dataset(self):
         return self._dataset
-
 
     def extract(self, path: str):
         """
@@ -87,18 +87,19 @@ class COCO(IOperator, ABC):
         bboxs = []
         areas = []
         for i in range(len(xmaxs)):
-            bboxs.append(xmins[i], ymins[i], xmaxs[i], ymaxs[i])
-            areas.append((xmaxs[i]-xmins[i])*(ymaxs[i]-ymins[i]))
+            bboxs.append([xmins[i], ymins[i], xmaxs[i], ymaxs[i]])
+            areas.append((xmaxs[i] - xmins[i]) * (ymaxs[i] - ymins[i]))
 
         compact_ann_list = zip(obj_ids, image_ids, cat_ids, areas, bboxs)
         for line in compact_ann_list:
-            data["annotations"].append(self.__list2dict(["id", "image_id", "category_id", "area", "bbox", "ignore", "iscrowd"],line))
+            data["annotations"].append(
+                self.__list2dict(["id", "image_id", "category_id", "area", "bbox", "ignore", "iscrowd"], line))
 
         class_ids = list(self.classes.keys())
         class_names = list(self.classes.values())
         compact_class_list = zip(class_ids, class_names)
         for line in compact_class_list:
-            data["categories"].append(self.__list2dict(["id", "name", "supercategory"], line,padd='none'))
+            data["categories"].append(self.__list2dict(["id", "name", "supercategory"], line, padd='none'))
 
         return data
 
@@ -200,11 +201,11 @@ class COCO(IOperator, ABC):
         """
         width = xmax - xmin
         height = ymax - ymin
-        x0 = (xmax + xmin)/2
-        y0 = (ymin + ymax)/2
+        x0 = (xmax + xmin) / 2
+        y0 = (ymin + ymax) / 2
         return [x0, y0, width, height]
 
-    def __list2dict(self, tags, values, padd = 0):
+    def __list2dict(self, tags, values, padd='0'):
         nt = len(tags)
         nv = len(values)
         if nt >= nv:
@@ -218,4 +219,3 @@ class COCO(IOperator, ABC):
                 return ret_dict
         else:
             logger.exception(f"There are not enough attributes to create .json file.\n #tags : {nt} & #attrs : {nv}")
-

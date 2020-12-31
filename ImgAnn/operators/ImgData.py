@@ -1,25 +1,15 @@
-# data extract from image dataset.
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import os
 import random
 import logging
-import traceback
 import pandas as pd
 
-# create a logger
+# set the logger
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-
-# set log Level
 logger.setLevel(logging.INFO)
-
-# define fileHandler and formatter
-# file_handler = logging.FileHandler('../logs/ImgAnn/operators/log_ImgData.txt')
-# formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-# file_handler.setFormatter(formatter)
-
-# add file handler to logger
-# logger.addHandler(file_handler)
 
 """:cvar
 image_df attributes:
@@ -35,8 +25,9 @@ image_df attributes:
 
 
 class ImgData:
+    """ data extract from image dataset. """
 
-    def __init__(self, root: str, dataset: dict):
+    def __init__(self, root: str, dataset):
         self.dataset = dataset
         self.root = root
 
@@ -52,6 +43,7 @@ class ImgData:
         dataset = {"folders": folders, "files": files}
 
         folders = ImgData.ext_folders(dataset_path)
+        data_df = pd.DataFrame()
         if type(folders) == str:
             logger.error("you have entered a file directory. Enter Folder directory.")
         else:
@@ -65,10 +57,11 @@ class ImgData:
                     logger.error("Error: there are no files in given directory!")
             else:
                 for folder in folders:
-                    files = ImgData.ext_files(os.path.abspath(dataset_path)+"\\"+folder)
+                    files = ImgData.ext_files(os.path.abspath(dataset_path) + "\\" + folder)
                     imgFiles = ImgData.__filterImg(files)
                     if files:
-                        data_list.extend(ImgData.list_creator(os.path.abspath(dataset_path+"\\"+folder), folder, imgFiles))
+                        data_list.extend(
+                            ImgData.list_creator(os.path.abspath(dataset_path + "\\" + folder), folder, imgFiles))
                     else:
                         continue
 
@@ -89,7 +82,7 @@ class ImgData:
         """
         tol_list = []
         for file in files:
-            tol_list.append((file, folder, root+"\\"+file))
+            tol_list.append((file, folder, root + "\\" + file))
         return tol_list
 
     @staticmethod
@@ -140,7 +133,6 @@ class ImgData:
 
         return files
 
-
     def sample_dataset(self, numOfSamples: int):
         """
         :param: numOfSample : number of sample images required to show.
@@ -148,7 +140,7 @@ class ImgData:
         """
         numOfrecords, _ = self.dataset.shape
         rnd_numbers = sorted(random.sample(range(0, numOfrecords), numOfSamples))
-        sample_df = self.dataset.iloc[rnd_numbers,:]
+        sample_df = self.dataset.iloc[rnd_numbers, :]
         return sample_df
 
     @staticmethod
@@ -165,4 +157,4 @@ class ImgData:
             if ext in files_type:
                 img_list.append(file)
 
-        return  img_list
+        return img_list

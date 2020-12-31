@@ -1,4 +1,6 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import logging
 
 from .operators.ImgData import ImgData
@@ -21,6 +23,8 @@ logger.setLevel(logging.INFO)
 
 class Sample:
 
+    """ Data Annotation file sampling interface """
+
     @classmethod
     def show_samples(cls, data_path: str,
                      ann_path: str,
@@ -35,6 +39,7 @@ class Sample:
         :return: render sequence of images.
         """
 
+        global obj
         imgdataset = ImgData.extract(data_path)
         if ann_type == 'coco':
             obj = coco.COCO(imgdataset.dataset)

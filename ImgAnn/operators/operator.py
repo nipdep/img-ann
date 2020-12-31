@@ -1,4 +1,5 @@
-# Operator Abstract class
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from abc import ABCMeta, abstractmethod
 import matplotlib.pyplot as plt
@@ -36,6 +37,8 @@ classes
 
 
 class IOperator:
+
+    """ Operator Abstract class """
 
     def __init__(self, dataset):
         self._dataset = dataset
@@ -89,7 +92,7 @@ class IOperator:
         raise NotImplementedError
 
     @abstractmethod
-    def archive(self):
+    def archive(self, location, data):
         raise NotImplementedError
 
     def descFormat(self):

@@ -1,4 +1,5 @@
-# Instance Object for COCO annotation format
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from abc import ABC
 import xml.etree.ElementTree as ET
@@ -16,6 +17,8 @@ from .operator import IOperator
 
 class PascalVOC(IOperator, ABC):
 
+    """ Instance Object for pascal VOC annotation format """
+
     def __init__(self, dataset):
         super().__init__(dataset)
         self._dataset = dataset
@@ -26,6 +29,7 @@ class PascalVOC(IOperator, ABC):
         :param path: string, relative / absolute path for annotation folder
         :return:
         """
+        global obj_list
         files_list = self.__extractFiles(path)
         image_id = 0
         img_list = []
@@ -51,7 +55,7 @@ class PascalVOC(IOperator, ABC):
         else:
             logger.error(f"obj_list has not many attrs. : {len(obj_list[0])} or obj_list is empty : {len(obj_list)}")
 
-    def archive(self, location, data):
+    def archive(self, location: str, data):
         """ save pascalVOC annotation file in the given location
 
         :param location: .xml file saving location

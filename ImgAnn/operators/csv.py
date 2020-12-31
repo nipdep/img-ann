@@ -1,4 +1,5 @@
-# Instance Object for COCO annotation format
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from abc import ABC
 import logging
@@ -14,6 +15,8 @@ from .operator import IOperator
 
 
 class CSV(IOperator, ABC):
+
+    """ Instance Object for COCO annotation format """
 
     def __init__(self, dataset):
         super().__init__(dataset)
