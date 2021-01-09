@@ -11,7 +11,7 @@ setup(
 
     name='ImgAnn',
 
-    version='0.5.0',
+    version='0.2.0',
 
     description='image annotation file operation provider.',
 
