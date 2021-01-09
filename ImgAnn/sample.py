@@ -30,7 +30,7 @@ class Sample:
                      ann_path: str,
                      num_of_samples: int = 5,
                      ann_type: str = 'coco'):
-        """render set of random images from dataset.
+        """ render set of random images from dataset.
 
         :param data_path: relative path current folder, or absolute path to the main folder of the image dataset
         :param ann_path: relative path current folder, or absolute path to the main folder of the annotated file

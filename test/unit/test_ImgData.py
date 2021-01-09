@@ -1,5 +1,7 @@
 
 import unittest
+from unittest.mock import  Mock
+from unittest.mock import patch
 import pathlib
 import logging
 
@@ -15,11 +17,10 @@ class TestImgData(unittest.TestCase):
     def setUp(self):
         self.here = str(pathlib.Path(__file__).parent.parent.parent.resolve())
 
-    def test_ext_folders(self):
-        self.assertEqual(['operators'], ImgData.ext_folders(self.here+'/logs/ImgAnn/'))
-        self.assertEqual(['operators'], ImgData.ext_folders(self.here+'/logs/ImgAnn/operators'))
-        self.assertEqual('operators', ImgData.ext_folders(self.here+'/logs/ImgAnn/operators/log_coco.txt'))
-        # self.assert(AssertionError, self.obj.ext_folders(self.here+'/logs/ImgAnn/operator'))
+    @patch('imgdata.os')
+    def test_ext_folders(self, mock_os):
+        mock_os.path.exists.side_effect = True
+
 
     def test_ext_files(self):
         self.assertEqual(['log_coco.txt','log_ImgData.txt'], ImgData.ext_files(self.here+'/logs/ImgAnn/operators'))

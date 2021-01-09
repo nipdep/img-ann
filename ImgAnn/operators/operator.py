@@ -36,8 +36,7 @@ classes
 """
 
 
-class IOperator:
-
+class IOperator(object):
     """ Operator Abstract class """
 
     def __init__(self, dataset):
@@ -65,7 +64,7 @@ class IOperator:
         :return: data in annotation file [pd.Dataframe] & classes in a dictionary
         """
         try:
-            if self.annotations and self.classes:
+            if self.annotations.shape[0] and self.classes:
                 return self.annotations, self.classes
             else:
                 return
@@ -73,14 +72,20 @@ class IOperator:
             logger.exception(error)
             assert error
 
-    def set_annotations(self, ann, classes):
+    def set_annotations(self, ann):
         """
 
         :param ann: data in annotation file [pd.Dataframe]
-        :param classes: classes in a dictionary
         :return:
         """
         self.annotations = ann
+
+    def set_classes(self, classes):
+        """
+
+        :param classes: classes in a dictionary
+        :return:
+        """
         self.classes = classes
 
     @abstractmethod
@@ -140,10 +145,10 @@ class IOperator:
 
         for i in range(len(boxes)):
             # print(boxes[i][0], boxes[i][1])
-            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14,14,14), thickness=rect_th)
+            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14, 14, 14), thickness=rect_th)
             cv2.putText(img, cls[i],
                         boxes[i][0], cv2.FONT_HERSHEY_COMPLEX,
-                        text_size, color=(1,1,1), thickness=text_th)
+                        text_size, color=(1, 1, 1), thickness=text_th)
         plt.figure(figsize=(30, 30))
         plt.imshow(img)
         plt.xticks([])

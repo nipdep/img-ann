@@ -73,7 +73,7 @@ class ImgData:
 
     @staticmethod
     def list_creator(root: str, folder: str, files: list):
-        """
+        """ concatenate two list row wise and add complete file path
 
         :param root: absolute path for the folder
         :param folder: parent folder of a file

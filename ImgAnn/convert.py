@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from .operators.ImgData import ImgData
-from .operators import *
+from .operators import coco, csv, pascalvoc
 import logging
 
 # set logger
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -14,8 +15,8 @@ class Convertor:
 
     """ convert method implementation class """
 
-    @staticmethod
-    def coco2csv(dataset_dir: str,
+    @classmethod
+    def coco2csv(cls, dataset_dir: str,
                  coco_ann_dir: str,
                  save_dir: str):
         """ convert coco to csv
@@ -28,10 +29,12 @@ class Convertor:
         imgdataset = ImgData.extract(dataset_dir)
         coco_obj = coco.COCO(imgdataset.dataset)
         coco_obj.extract(coco_ann_dir)
-        ann, cls = coco_obj.get_annotations()
+        df = coco_obj.get_dataset()
+        ann, clas = coco_obj.get_annotations()
 
-        csv_obj = csv.CSV(imgdataset)
-        csv_obj.set_annotations(ann, cls)
+        csv_obj = csv.CSV(df)
+        csv_obj.set_annotations(ann)
+        csv_obj.set_classes(clas)
         csv_fomatted = csv_obj.translate()
         csv_obj.archive(save_dir, csv_fomatted)
 
@@ -51,7 +54,7 @@ class Convertor:
         coco_obj.extract(coco_ann_dir)
         ann, cls = coco_obj.get_annotations()
 
-        voc_obj = pascalvoc.PascalVOC(imgdataset)
+        voc_obj = pascalvoc.PascalVOC(imgdataset.dataset)
         voc_obj.set_annotations(ann, cls)
         for xml, name in voc_obj.translate():
             file_dir = save_dir + '/' + name
@@ -69,11 +72,11 @@ class Convertor:
         :return: None
         """
         imagedataset = ImgData.extract(dataset_dir)
-        csv_obj = csv.CSV(imagedataset)
+        csv_obj = csv.CSV(imagedataset.dataset)
         csv_obj.extract(csv_ann_dir)
         ann, cls = csv_obj.get_annotations()
 
-        coco_obj = coco.COCO(imagedataset)
+        coco_obj = coco.COCO(imagedataset.dataset)
         coco_obj.set_annotations(ann, cls)
         data = coco_obj.translate()
         coco_obj.archive(save_dir, data)
@@ -90,11 +93,11 @@ class Convertor:
         :return: None
         """
         imagedataset = ImgData.extract(dataset_dir)
-        csv_obj = csv.CSV(imagedataset)
+        csv_obj = csv.CSV(imagedataset.dataset)
         csv_obj.extract(csv_ann_dir)
         ann, cls = csv_obj.get_annotations()
 
-        voc_obj = pascalvoc.PascalVOC(imagedataset)
+        voc_obj = pascalvoc.PascalVOC(imagedataset.dataset)
         voc_obj.set_annotations(ann, cls)
         for xml, name in voc_obj.translate():
             file_dir = save_dir + '/' + name
@@ -112,11 +115,11 @@ class Convertor:
         :return: None
         """
         imagedataset = ImgData.extract(dataset_dir)
-        voc_obj = pascalvoc.PascalVOC(imagedataset)
+        voc_obj = pascalvoc.PascalVOC(imagedataset.dataset)
         voc_obj.extract(voc_ann_dir)
         ann, cls = voc_obj.get_annotations()
 
-        coco_obj = coco.COCO(imagedataset)
+        coco_obj = coco.COCO(imagedataset.dataset)
         coco_obj.set_annotations(ann, cls)
         data = coco_obj.translate()
         coco_obj.archive(save_dir, data)
@@ -133,11 +136,11 @@ class Convertor:
         :return: None
         """
         imagedataset = ImgData.extract(dataset_dir)
-        voc_obj = pascalvoc.PascalVOC(imagedataset)
+        voc_obj = pascalvoc.PascalVOC(imagedataset.dataset)
         voc_obj.extract(voc_ann_dir)
         ann, cls = voc_obj.get_annotations()
 
-        csv_obj = csv.CSV(imagedataset)
+        csv_obj = csv.CSV(imagedataset.dataset)
         csv_obj.set_annotations(ann, cls)
         csv_fomatted = csv_obj.translate()
         csv_obj.archive(save_dir, csv_fomatted)

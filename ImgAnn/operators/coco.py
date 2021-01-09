@@ -4,8 +4,9 @@
 from abc import ABC
 import json
 import os
-import logging
 import pandas as pd
+import logging
+
 
 # setup logger
 logging.basicConfig()
@@ -20,11 +21,8 @@ class COCO(IOperator, ABC):
     """ Instance Object for COCO annotation format """
 
     def __init__(self, dataset):
-        super().__init__(dataset)
+        super(COCO, self).__init__(dataset)
         self._dataset = dataset
-
-    def get_dataset(self):
-        return self._dataset
 
     def extract(self, path: str):
         """
@@ -143,6 +141,7 @@ class COCO(IOperator, ABC):
         self._dataset["image_id"] = self._dataset["name"].map(ann_id)
         self._dataset.loc[:, "width"] = self._dataset.loc[:, "name"].map(img_width)
         self._dataset.loc[:, "height"] = self._dataset.loc[:, "name"].map(img_height)
+        super(COCO, self).set_dataset(self._dataset)
         return
 
     def __extractAnnotation(self, anns):
@@ -162,14 +161,14 @@ class COCO(IOperator, ABC):
                 logger.exception("ERROR: annotation file doesn't in accept the format.")
             else:
                 ann_list.append((obj_id, img_id, cls_id, min_tup[0], min_tup[1], max_tup[0], max_tup[1]))
+
+        if ann_list:
+            ann_df = pd.DataFrame.from_records(ann_list,
+                                               columns=['obj_id', 'image_id', 'class_id', 'x_min', 'y_min', 'x_max',
+                                                        'y_max'])
+            super(COCO, self).set_annotations(ann_df)
         else:
-            if ann_list:
-                ann_df = pd.DataFrame.from_records(ann_list,
-                                                   columns=['obj_id', 'image_id', 'class_id', 'x_min', 'y_min', 'x_max',
-                                                            'y_max'])
-                self.annotations = ann_df
-            else:
-                self.annotations = pd.DataFrame()
+            super(COCO, self).set_annotations(pd.DataFrame())
 
     def __extractClasses(self, cats):
         """
@@ -184,11 +183,11 @@ class COCO(IOperator, ABC):
                     class_dict[obj["id"]] = obj["name"]
                 except Exception as error:
                     logger.exception("ERROR: annotation file doesn't in accept the format.")
-            else:
-                self.classes = class_dict
+
+            super(COCO, self).set_classes(class_dict)
         else:
             logger.error("There are no distinctive class definition in the annotation.")
-            self.classes = {}
+            super(COCO, self).set_classes({})
 
     def __KITTI2normilized(self, xmin, ymin, xmax, ymax):
         """

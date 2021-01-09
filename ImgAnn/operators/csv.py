@@ -50,10 +50,7 @@ class CSV(IOperator, ABC):
         :return: None
         """
         if os.path.exists(os.path.dirname(location)):
-            if df:
                 df.to_csv(location, index=False)
-            else:
-                logger.exception("The DataFrame file is empty.")
         else:
             logger.exception("There are no such parent directory to file save.")
 
@@ -65,18 +62,26 @@ class CSV(IOperator, ABC):
         csv_ann_df = self.annotations.copy()
 
         class_series = pd.Series(self.classes)
-        csv_ann_df["class"] = csv_ann_df["class_id"].map(class_series)
+        csv_ann_df.loc[:,"class"] = csv_ann_df["class_id"].map(class_series)
 
-        filename_series = pd.Series(self._dataset.loc[:, "image_id"].values(),
-                                    index=self._dataset.loc[:, "image_name"].values())
-        csv_ann_df["filename"] = csv_ann_df["image_id"].map(filename_series)
+        filename_series = pd.Series(self._dataset['name'].tolist(),
+                                    index=self._dataset["image_id"].tolist())
+        csv_ann_df.loc[:,"filename"] = csv_ann_df["image_id"].map(filename_series)
 
-        if pd.isnull(csv_ann_df["class"]) or pd.isnull(csv_ann_df["filename"]):
-            logger.error("There are not enough data in past annotation file to create annotation file.")
+        width_series = pd.Series(self._dataset['width'].tolist(),
+                                    index=self._dataset["image_id"].tolist())
+        csv_ann_df.loc[:, "width"] = csv_ann_df["image_id"].map(width_series)
+
+        height_series = pd.Series(self._dataset['height'].tolist(),
+                                    index=self._dataset["image_id"].tolist())
+        csv_ann_df.loc[:, "height"] = csv_ann_df["image_id"].map(height_series)
+
+        if (pd.isnull(csv_ann_df["class"]).sum() + pd.isnull(csv_ann_df["filename"]).sum()) != 0:
+            logger.error(f"There are not enough data in past annotation file to create annotation file. {pd.isnull(csv_ann_df['class']).sum()}, {pd.isnull(csv_ann_df['filename']).sum()}")
         else:
             csv_ann_df.rename(columns={"x_min": "xmin", "y_min": "ymin", "x_max": "xmax", "y_max": "ymax"},
                               inplace=True)
-            return csv_ann_df.loc[: ["filename", "width", "height", "class", "xmin", "ymin", "xmax", "ymax"]]
+            return csv_ann_df.loc[:, ["filename", "width", "height", "class", "xmin", "ymin", "xmax", "ymax"]]
 
     def __dfUpdates(self, full_df):
         """add id, image width & height columns to self.dataset
