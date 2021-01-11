@@ -42,7 +42,6 @@ class ImgData:
         files = ImgData.ext_files(dataset_path)
         dataset = {"folders": folders, "files": files}
 
-        folders = ImgData.ext_folders(dataset_path)
         data_df = pd.DataFrame()
         if type(folders) == str:
             logger.error("you have entered a file directory. Enter Folder directory.")
@@ -96,12 +95,12 @@ class ImgData:
             assert os.path.exists(path), "path does not exists"
             folders = [x[1] for x in os.walk(path) if x[1] != []]
             if not folders:
-                if not [x for x in os.walk(path)]:
+                if not [x for x in os.walk(path)]:    # case : given dir is a file
                     parent_path, file_name = os.path.split(path)
                     folders = os.path.basename(parent_path)
-                else:
+                else:      # case : there are no folders under the dir.
                     folders = [os.path.basename(path)]
-            else:
+            else:     # case : there are sub folders in the folder.
                 folders = folders[0]
         except Exception as error:
             logger.exception("There is no folder in given directory.")

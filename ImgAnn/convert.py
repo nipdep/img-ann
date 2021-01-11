@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from .operators.ImgData import ImgData
+from .operators.imgdata import ImgData
 from .operators import coco, csv, pascalvoc
 import logging
+import os
 
 # set logger
 logging.basicConfig()
@@ -49,15 +50,20 @@ class Convertor:
         :param save_dir: .csv file saving location
         :return: None
         """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
         imgdataset = ImgData.extract(dataset_dir)
         coco_obj = coco.COCO(imgdataset.dataset)
         coco_obj.extract(coco_ann_dir)
+        df = coco_obj.get_dataset()
         ann, cls = coco_obj.get_annotations()
 
-        voc_obj = pascalvoc.PascalVOC(imgdataset.dataset)
-        voc_obj.set_annotations(ann, cls)
+        voc_obj = pascalvoc.PascalVOC(df)
+        voc_obj.set_annotations(ann)
+        voc_obj.set_classes(cls)
         for xml, name in voc_obj.translate():
-            file_dir = save_dir + '/' + name
+            file_dir = save_dir + '/' + name.split('.')[0]+'.xml'
             voc_obj.archive(file_dir, xml)
 
     @staticmethod
