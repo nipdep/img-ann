@@ -3,7 +3,7 @@
 
 import logging
 
-from .operators.ImgData import ImgData
+from .operators.imgdata import ImgData
 from .operators import coco, csv, pascalvoc
 
 # setup logger

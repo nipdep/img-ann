@@ -63,8 +63,9 @@ class PascalVOC(IOperator, ABC):
         :return:
         """
         try:
-            tree = ET.ElementTree(data)
-            tree.write(location, 'r')
+            tree_str = ET.tostring(data)
+            with open(location, 'wb') as pf:
+                pf.write(tree_str)
         except Exception as error:
             logger.exception(error)
             assert error
@@ -183,7 +184,7 @@ class PascalVOC(IOperator, ABC):
         :param img_id: [int] image_id in the self.annotations
         :return: all the row that carry given image_id as a list.
         """
-        filtered_list = self._dataset.loc[self._dataset["image_id"] == int(img_id), :].to_list()
+        filtered_list = self.annotations.loc[self.annotations["image_id"] == int(img_id), :].values.tolist()
         return filtered_list
 
     def __xmlFomatter(self, image_data, ann_data):
@@ -200,20 +201,20 @@ class PascalVOC(IOperator, ABC):
             ET.SubElement(ann, 'path').text = image_data['path']
             ET.SubElement(ann, 'size')
             size = ET.SubElement(ann, 'size')
-            ET.SubElement(size, 'width').text = image_data['width']
-            ET.SubElement(size, 'height').text = image_data['height']
-            ET.SubElement(size, 'depth').text = 3
+            ET.SubElement(size, 'width').text = str(image_data['width'])
+            ET.SubElement(size, 'height').text = str(image_data['height'])
+            ET.SubElement(size, 'depth').text = str(3)
             for line in ann_data:
                 obj = ET.SubElement(ann, 'object')
-                ET.SubElement(obj, 'name').text = self.classes[line[2]]
+                ET.SubElement(obj, 'name').text = self.classes[line[1]]
                 ET.SubElement(obj, 'pose').text = 'Unspecified'
-                ET.SubElement(obj, 'truncated').text = 0
-                ET.SubElement(obj, 'difficult').text = 0
+                ET.SubElement(obj, 'truncated').text = str(0)
+                ET.SubElement(obj, 'difficult').text = str(0)
                 bbox = ET.SubElement(obj, 'bndbox')
-                ET.SubElement(bbox, 'xmin').text = line[3]
-                ET.SubElement(bbox, 'ymin').text = line[4]
-                ET.SubElement(bbox, 'xmax').text = line[5]
-                ET.SubElement(bbox, 'ymax').text = line[6]
+                ET.SubElement(bbox, 'xmin').text = str(line[3])
+                ET.SubElement(bbox, 'ymin').text = str(line[4])
+                ET.SubElement(bbox, 'xmax').text = str(line[5])
+                ET.SubElement(bbox, 'ymax').text = str(line[6])
             return ann
         except Exception as error:
             logger.exception(error)
