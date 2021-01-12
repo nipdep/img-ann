@@ -206,7 +206,7 @@ class PascalVOC(IOperator, ABC):
             ET.SubElement(size, 'depth').text = str(3)
             for line in ann_data:
                 obj = ET.SubElement(ann, 'object')
-                ET.SubElement(obj, 'name').text = self.classes[line[1]]
+                ET.SubElement(obj, 'name').text = self.classes[line[2]]
                 ET.SubElement(obj, 'pose').text = 'Unspecified'
                 ET.SubElement(obj, 'truncated').text = str(0)
                 ET.SubElement(obj, 'difficult').text = str(0)
