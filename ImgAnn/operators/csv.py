@@ -4,6 +4,7 @@
 from abc import ABC
 import logging
 import os
+import sys
 import pandas as pd
 
 # setup logger
@@ -37,10 +38,14 @@ class CSV(IOperator, ABC):
                 self.__updateDataset(new_ann_df.loc[:, ["name", "width", "height", "image_id"]])
                 self.__setAnn(new_ann_df)
             else:
-                assert Exception(
-                    f"entered annotation file does not contains all the required attributes. \n {self.attrs}")
+                assert Exception(f"entered annotation file does not contains all the required attributes. \n {self.attrs}")
+                logger.error(f"entered annotation file does not contains all the required attributes. \n {self.attrs}")
+                sys.exit()
+                
         else:
             assert Exception(f"entered directory {path}, does not exsist.")
+            logger.error(Exception(f"entered directory {path}, does not exsist."))
+            sys.exit()
 
     def archive(self, location, df):
         """ save csv annotation file in the given location
@@ -119,10 +124,10 @@ class CSV(IOperator, ABC):
         """
         if n_ids == len(classes):
             ids = range(1, n_ids + 1)
-            self.classes = dict(zip(ids, classes))
+            super(CSV, self).set_classes(dict(zip(ids, classes)))
         else:
             assert Exception(f"length of class names[{len(classes)}] and class ids[{n_ids}] are not equal.")
-            self.classes = {}
+            super(CSV, self).set_classes({})
 
     def __setAnn(self, full_df):
         """
@@ -134,10 +139,10 @@ class CSV(IOperator, ABC):
         col_lis = ["obj_id", "image_id", "class_id", "x_min", "y_min", "x_max", "y_max"]
         if all(y in list(full_df.columns) for y in col_lis):
             ann_df = full_df.loc[:, col_lis]
-            self.annotations = ann_df
+            super(CSV, self).set_annotations(ann_df)
         else:
             assert Exception(f"there are missing of required columns in {full_df.columns}")
-            self.annotations = pd.DataFrame()
+            super(CSV, self).set_annotations(pd.DataFrame())
 
     def __updateDataset(self, image_df):
         """
@@ -147,4 +152,4 @@ class CSV(IOperator, ABC):
         """
         partial_df = image_df.copy()
         res_df = pd.merge(self._dataset, partial_df, on="name")
-        self._dataset = res_df
+        super(CSV, self).set_dataset(res_df)

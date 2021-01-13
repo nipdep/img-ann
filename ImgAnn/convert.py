@@ -80,9 +80,10 @@ class Convertor:
         imagedataset = ImgData.extract(dataset_dir)
         csv_obj = csv.CSV(imagedataset.dataset)
         csv_obj.extract(csv_ann_dir)
+        df = csv_obj.get_dataset()
         ann, cls = csv_obj.get_annotations()
 
-        coco_obj = coco.COCO(imagedataset.dataset)
+        coco_obj = coco.COCO(df)
         coco_obj.set_annotations(ann, cls)
         data = coco_obj.translate()
         coco_obj.archive(save_dir, data)
@@ -98,15 +99,20 @@ class Convertor:
         :param save_dir: .csv file saving location
         :return: None
         """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
         imagedataset = ImgData.extract(dataset_dir)
         csv_obj = csv.CSV(imagedataset.dataset)
         csv_obj.extract(csv_ann_dir)
+        df = csv_obj.get_dataset()
         ann, cls = csv_obj.get_annotations()
 
-        voc_obj = pascalvoc.PascalVOC(imagedataset.dataset)
-        voc_obj.set_annotations(ann, cls)
+        voc_obj = pascalvoc.PascalVOC(df)
+        voc_obj.set_annotations(ann)
+        voc_obj.set_classes(cls)
         for xml, name in voc_obj.translate():
-            file_dir = save_dir + '/' + name
+            file_dir = save_dir + '/' + name.split('.')[0]+'.xml'
             voc_obj.archive(file_dir, xml)
 
     @staticmethod
