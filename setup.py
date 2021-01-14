@@ -11,7 +11,7 @@ setup(
 
     name='ImgAnn',
 
-    version='0.2.0',
+    version='0.5.1',
 
     description='image annotation file operation provider.',
 
@@ -57,7 +57,7 @@ setup(
     extras_require={
         'dev': ['check-manifest',
                 'pytest>=3.7'],
-        'test': ['coverage'],
+        'test': ['coverage', 'unittest'],
     },
 
     # package_data={  # Optional
