@@ -5,6 +5,7 @@ from abc import ABC
 import xml.etree.ElementTree as ET
 import pandas as pd
 import os
+import re
 import logging
 
 # setup logger
@@ -29,7 +30,6 @@ class PascalVOC(IOperator, ABC):
         :param path: string, relative / absolute path for annotation folder
         :return:
         """
-        global obj_list
         files_list = self.__extractFiles(path)
         image_id = 0
         img_list = []
@@ -49,7 +49,7 @@ class PascalVOC(IOperator, ABC):
             logger.error("[var]: img_list is empty.")
 
         if obj_list and len(obj_list[0]) == 6:
-            obj_df = pd.DataFrame.from_records(obj_list,
+            obj_df = pd.DataFrame.from_records(tol_obj_list,
                                                columns=['x_min', 'y_min', 'x_max', 'y_max', 'class', 'image_id'])
             self.__DFRefiner(obj_df)
         else:
@@ -120,8 +120,8 @@ class PascalVOC(IOperator, ABC):
         ann_df["obj_id"] = range(1,ann_df.shape[0]+1)
         nw_df = ann_df.loc[:, ["obj_id", "image_id", "class_id", "x_min", "y_min", "x_max", "y_max"]]
 
-        self.annotations = nw_df
-        self.classes = dict(zip(range(1,n_cats+1),cats))
+        super(PascalVOC, self).set_annotations(nw_df)
+        super(PascalVOC, self).set_classes(dict(zip(range(1,n_cats+1),cats)))
 
     def __FileReader(self, file_path: str):
         """ read individual xml files extract data, create pd.DataFrame files
@@ -134,7 +134,7 @@ class PascalVOC(IOperator, ABC):
         ann_tree = ET.parse(file_path)
         ann_root = ann_tree.getroot()
         try:
-            filename = ann_root.find('filename').text
+            filename = self.__tagFilter(ann_root.find('filename').text)
             size = ann_root.find('size')
             width = int(size.find('width').text)
             height = int(size.find('height').text)
@@ -146,8 +146,8 @@ class PascalVOC(IOperator, ABC):
         except Exception as error:
             logger.exception(error)
             assert error
-        else:
-            return img_data, obj_list
+
+        return [img_data, obj_list]
 
     def __get_coco_annotation_from_obj(self, obj):
         """ read <object> block in xml file
@@ -156,7 +156,7 @@ class PascalVOC(IOperator, ABC):
         :return: a list of object attrs. [ class, xmin, ymin, xmax, ymax ]
         """
         try:
-            label = obj.find('name').text
+            label = self.__tagFilter(obj.find('name').text)
             bndbox = obj.find('bndbox')
             xmin = int(bndbox.find('xmin').text)
             ymin = int(bndbox.find('ymin').text)
@@ -176,7 +176,7 @@ class PascalVOC(IOperator, ABC):
         """
         partial_df = image_df.copy()
         res_df = pd.merge(self._dataset, partial_df, on="name")
-        self._dataset = res_df
+        super(PascalVOC, self).set_dataset(res_df)
 
     def __filterImgObj(self, img_id):
         """ get row for specific image_id.
@@ -199,7 +199,6 @@ class PascalVOC(IOperator, ABC):
             ET.SubElement(ann, 'folder').text = image_data['folder']
             ET.SubElement(ann, 'filename').text = image_data['name']
             ET.SubElement(ann, 'path').text = image_data['path']
-            ET.SubElement(ann, 'size')
             size = ET.SubElement(ann, 'size')
             ET.SubElement(size, 'width').text = str(image_data['width'])
             ET.SubElement(size, 'height').text = str(image_data['height'])
@@ -219,3 +218,7 @@ class PascalVOC(IOperator, ABC):
         except Exception as error:
             logger.exception(error)
             assert error
+
+    def __tagFilter(self,st: str):
+        s = re.sub(r'\t*\n*\r*', '', st)
+        return s

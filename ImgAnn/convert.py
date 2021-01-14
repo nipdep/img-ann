@@ -84,7 +84,8 @@ class Convertor:
         ann, cls = csv_obj.get_annotations()
 
         coco_obj = coco.COCO(df)
-        coco_obj.set_annotations(ann, cls)
+        coco_obj.set_annotations(ann)
+        coco_obj.set_classes(cls)
         data = coco_obj.translate()
         coco_obj.archive(save_dir, data)
 
@@ -129,10 +130,12 @@ class Convertor:
         imagedataset = ImgData.extract(dataset_dir)
         voc_obj = pascalvoc.PascalVOC(imagedataset.dataset)
         voc_obj.extract(voc_ann_dir)
+        df = voc_obj.get_dataset()
         ann, cls = voc_obj.get_annotations()
 
-        coco_obj = coco.COCO(imagedataset.dataset)
-        coco_obj.set_annotations(ann, cls)
+        coco_obj = coco.COCO(df)
+        coco_obj.set_annotations(ann)
+        coco_obj.set_classes(cls)
         data = coco_obj.translate()
         coco_obj.archive(save_dir, data)
 
@@ -150,9 +153,11 @@ class Convertor:
         imagedataset = ImgData.extract(dataset_dir)
         voc_obj = pascalvoc.PascalVOC(imagedataset.dataset)
         voc_obj.extract(voc_ann_dir)
+        df = voc_obj.get_dataset()
         ann, cls = voc_obj.get_annotations()
 
-        csv_obj = csv.CSV(imagedataset.dataset)
-        csv_obj.set_annotations(ann, cls)
+        csv_obj = csv.CSV(df)
+        csv_obj.set_annotations(ann)
+        csv_obj.set_classes(cls)
         csv_fomatted = csv_obj.translate()
         csv_obj.archive(save_dir, csv_fomatted)

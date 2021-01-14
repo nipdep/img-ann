@@ -49,7 +49,7 @@ class COCO(IOperator, ABC):
         """
         if os.path.exists(os.path.dirname(location)):
             if data:
-                with open(location, 'r') as pf:
+                with open(location, 'w') as pf:
                     json.dump(data, pf)
             else:
                 logger.exception("The DataFrame file is empty.")
@@ -66,8 +66,8 @@ class COCO(IOperator, ABC):
         data["images"] = []
         data["categories"] = []
 
-        filenames = self._dataset["image_name"].to_list()
-        widths = self._dataset["width"].to_self()
+        filenames = self._dataset["name"].to_list()
+        widths = self._dataset["width"].to_list()
         heights = self._dataset["height"].to_list()
         ids = self._dataset["image_id"].to_list()
         compact_image_list = zip(filenames, heights, widths, ids)
@@ -211,7 +211,7 @@ class COCO(IOperator, ABC):
             ret_dict = {}
             for i in range(nt):
                 if i < nv:
-                    ret_dict[tags[i]] = values[i]
+                    ret_dict[tags[i]] = str(values[i])
                 else:
                     ret_dict[tags[i]] = padd
             else:
