@@ -1,7 +1,9 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import logging
 
-from .operators.ImgData import ImgData
+from .operators.imgdata import ImgData
 from .operators import coco, csv, pascalvoc
 
 # setup logger
@@ -21,12 +23,14 @@ logger.setLevel(logging.INFO)
 
 class Sample:
 
+    """ Data Annotation file sampling interface """
+
     @classmethod
     def show_samples(cls, data_path: str,
                      ann_path: str,
                      num_of_samples: int = 5,
                      ann_type: str = 'coco'):
-        """render set of random images from dataset.
+        """ render set of random images from dataset.
 
         :param data_path: relative path current folder, or absolute path to the main folder of the image dataset
         :param ann_path: relative path current folder, or absolute path to the main folder of the annotated file
@@ -35,6 +39,7 @@ class Sample:
         :return: render sequence of images.
         """
 
+        global obj
         imgdataset = ImgData.extract(data_path)
         if ann_type == 'coco':
             obj = coco.COCO(imgdataset.dataset)

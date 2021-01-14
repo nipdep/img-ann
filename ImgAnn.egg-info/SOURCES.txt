@@ -10,10 +10,10 @@ ImgAnn.egg-info/SOURCES.txt
 ImgAnn.egg-info/dependency_links.txt
 ImgAnn.egg-info/requires.txt
 ImgAnn.egg-info/top_level.txt
-ImgAnn/operators/ImgData.py
 ImgAnn/operators/__init__.py
 ImgAnn/operators/coco.py
 ImgAnn/operators/csv.py
+ImgAnn/operators/imgdata.py
 ImgAnn/operators/operator.py
 ImgAnn/operators/pascalvoc.py
 ImgAnn/operators/ImgData.py

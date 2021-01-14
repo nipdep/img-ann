@@ -1,8 +1,5 @@
 
-from helloworld import sayHello
+import os
 
-def test_sayHello_with_no_params():
-    assert sayHello() == "Hello, World!"
-
-def test_sayHello_with_params():
-    assert sayHello("Everyone") == "Hello, Everyone!"
+for i in os.walk('../ImgAnn/operators'):
+    print(i)

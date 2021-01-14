@@ -1,4 +1,5 @@
-# Operator Abstract class
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from abc import ABCMeta, abstractmethod
 import matplotlib.pyplot as plt
@@ -29,8 +30,14 @@ render format
     - classes : [str, ...]
 """
 
+""":param
+classes
+{class_id[int] : class_name[str], ... }
+"""
 
-class IOperator:
+
+class IOperator(object):
+    """ Operator Abstract class """
 
     def __init__(self, dataset):
         self._dataset = dataset
@@ -52,9 +59,34 @@ class IOperator:
         """
         return self._dataset
 
-    @abstractmethod
-    def describe(self):
-        raise NotImplementedError
+    def get_annotations(self):
+        """
+        :return: data in annotation file [pd.Dataframe] & classes in a dictionary
+        """
+        try:
+            if self.annotations.shape[0] and self.classes:
+                return self.annotations, self.classes
+            else:
+                return
+        except Exception as error:
+            logger.exception(error)
+            assert error
+
+    def set_annotations(self, ann):
+        """
+
+        :param ann: data in annotation file [pd.Dataframe]
+        :return:
+        """
+        self.annotations = ann
+
+    def set_classes(self, classes):
+        """
+
+        :param classes: classes in a dictionary
+        :return:
+        """
+        self.classes = classes
 
     @abstractmethod
     def extract(self, path: str):
@@ -65,9 +97,16 @@ class IOperator:
         raise NotImplementedError
 
     @abstractmethod
-    def archive(self):
+    def archive(self, location, data):
         raise NotImplementedError
 
+    def descFormat(self):
+        # TODO: make nice format to show descibe result.
+        pass
+
+    def describe(self):
+        # TODO: annotation file description
+        pass
 
     def sample(self, numOfSamples):
         """
@@ -90,36 +129,32 @@ class IOperator:
             final_list.append(ordered_dict)
         return final_list
 
-    def descFormat(self):
-        # TODO: make nice format to show descibe result.
-        pass
-
     def render(self, path: str, boxes: list, cls: list, rect_th=1, text_size=0.5, text_th=1):
-        # TODO: show annotated image
+        """ show annotated image
+
+        :param path: directory to image
+        :param boxes: all the bounding boxes in [[(),()], ...]
+        :param cls: list of class names
+        :param rect_th: thickness of he box :int
+        :param text_size: font size
+        :param text_th: thickness of the text :int
+        :return: matplotlib.pyplot.plt object / a image.
+        """
         img = cv2.imread(path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         for i in range(len(boxes)):
             # print(boxes[i][0], boxes[i][1])
-            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14,14,14), thickness=rect_th)
+            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14, 14, 14), thickness=rect_th)
             cv2.putText(img, cls[i],
                         boxes[i][0], cv2.FONT_HERSHEY_COMPLEX,
-                        text_size, color=(1,1,1), thickness=text_th)
+                        text_size, color=(1, 1, 1), thickness=text_th)
         plt.figure(figsize=(30, 30))
         plt.imshow(img)
         plt.xticks([])
         plt.yticks([])
         plt.show()
         return
-
-    @classmethod
-    def datasetReader(cls, data_path: str):
-
-        return cls(object)
-
-    @classmethod
-    def randomizer(cls, num_of_samples: int):
-        pass
 
     def __listGen(self, data_list):
         """

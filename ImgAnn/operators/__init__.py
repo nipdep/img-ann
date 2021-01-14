@@ -1,6 +1,6 @@
 from . import coco
 from . import csv
-from . import ImgData
+from . import imgdata
 from . import operator
 from . import pascalvoc
 import logging
@@ -11,7 +11,7 @@ logger.setLevel(logging.INFO)
 __all__ = [
     'coco',
     'csv',
-    'ImgData',
+    'imgdata',
     'operator',
     'pascalvoc'
 ]

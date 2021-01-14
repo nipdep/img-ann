@@ -1,8 +1,10 @@
-# Instance Object for COCO annotation format
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from abc import ABC
 import logging
 import os
+import sys
 import pandas as pd
 
 # setup logger
@@ -14,6 +16,8 @@ from .operator import IOperator
 
 
 class CSV(IOperator, ABC):
+
+    """ Instance Object for COCO annotation format """
 
     def __init__(self, dataset):
         super().__init__(dataset)
@@ -34,18 +38,55 @@ class CSV(IOperator, ABC):
                 self.__updateDataset(new_ann_df.loc[:, ["name", "width", "height", "image_id"]])
                 self.__setAnn(new_ann_df)
             else:
-                assert Exception(
-                    f"entered annotation file does not contains all the required attributes. \n {self.attrs}")
+                assert Exception(f"entered annotation file does not contains all the required attributes. \n {self.attrs}")
+                logger.error(f"entered annotation file does not contains all the required attributes. \n {self.attrs}")
+                sys.exit()
+                
         else:
             assert Exception(f"entered directory {path}, does not exsist.")
+            logger.error(Exception(f"entered directory {path}, does not exsist."))
+            sys.exit()
 
-    def archive(self):
-        # TODO: save csv annotation file in the given location
-        pass
+    def archive(self, location, df):
+        """ save csv annotation file in the given location
+
+        :param location: .csv file saving location
+        :param df: finalized DataFrame object from the self.translate()
+        :return: None
+        """
+        if os.path.exists(os.path.dirname(location)):
+                df.to_csv(location, index=False)
+        else:
+            logger.exception("There are no such parent directory to file save.")
 
     def translate(self):
-        # TODO: translate common schema into json compatible format.
-        pass
+        """ translate common schema into csv compatible format.
+
+        :return: pd.DataFrame object with ["filename", "width", "height", "class", "xmin", "ymin", "xmax", "ymax"] columns.
+        """
+        csv_ann_df = self.annotations.copy()
+
+        class_series = pd.Series(self.classes)
+        csv_ann_df.loc[:,"class"] = csv_ann_df["class_id"].map(class_series)
+
+        filename_series = pd.Series(self._dataset['name'].tolist(),
+                                    index=self._dataset["image_id"].tolist())
+        csv_ann_df.loc[:,"filename"] = csv_ann_df["image_id"].map(filename_series)
+
+        width_series = pd.Series(self._dataset['width'].tolist(),
+                                    index=self._dataset["image_id"].tolist())
+        csv_ann_df.loc[:, "width"] = csv_ann_df["image_id"].map(width_series)
+
+        height_series = pd.Series(self._dataset['height'].tolist(),
+                                    index=self._dataset["image_id"].tolist())
+        csv_ann_df.loc[:, "height"] = csv_ann_df["image_id"].map(height_series)
+
+        if (pd.isnull(csv_ann_df["class"]).sum() + pd.isnull(csv_ann_df["filename"]).sum()) != 0:
+            logger.error(f"There are not enough data in past annotation file to create annotation file. {pd.isnull(csv_ann_df['class']).sum()}, {pd.isnull(csv_ann_df['filename']).sum()}")
+        else:
+            csv_ann_df.rename(columns={"x_min": "xmin", "y_min": "ymin", "x_max": "xmax", "y_max": "ymax"},
+                              inplace=True)
+            return csv_ann_df.loc[:, ["filename", "width", "height", "class", "xmin", "ymin", "xmax", "ymax"]]
 
     def __dfUpdates(self, full_df):
         """add id, image width & height columns to self.dataset
@@ -69,7 +110,8 @@ class CSV(IOperator, ABC):
         full_df.drop("class", inplace=True, axis=1)
 
         full_df["obj_id"] = pd.Series(range(1, full_df.shape[0] + 1))
-        full_df.rename(columns={"filename": "name", "xmin" : "x_min", "ymin" : "y_min", "xmax" : "x_max", "ymax" : "y_max"}, inplace=True)
+        full_df.rename(columns={"filename": "name", "xmin": "x_min", "ymin": "y_min", "xmax": "x_max", "ymax": "y_max"},
+                       inplace=True)
 
         return full_df
 
@@ -82,10 +124,10 @@ class CSV(IOperator, ABC):
         """
         if n_ids == len(classes):
             ids = range(1, n_ids + 1)
-            self.classes = dict(zip(ids, classes))
+            super(CSV, self).set_classes(dict(zip(ids, classes)))
         else:
             assert Exception(f"length of class names[{len(classes)}] and class ids[{n_ids}] are not equal.")
-            self.classes = {}
+            super(CSV, self).set_classes({})
 
     def __setAnn(self, full_df):
         """
@@ -95,12 +137,12 @@ class CSV(IOperator, ABC):
         """
         full_df = full_df.copy()
         col_lis = ["obj_id", "image_id", "class_id", "x_min", "y_min", "x_max", "y_max"]
-        if all( y in list(full_df.columns) for y in col_lis):
+        if all(y in list(full_df.columns) for y in col_lis):
             ann_df = full_df.loc[:, col_lis]
-            self.annotations = ann_df
+            super(CSV, self).set_annotations(ann_df)
         else:
             assert Exception(f"there are missing of required columns in {full_df.columns}")
-            self.annotations = pd.DataFrame()
+            super(CSV, self).set_annotations(pd.DataFrame())
 
     def __updateDataset(self, image_df):
         """
@@ -110,4 +152,4 @@ class CSV(IOperator, ABC):
         """
         partial_df = image_df.copy()
         res_df = pd.merge(self._dataset, partial_df, on="name")
-        self._dataset = res_df
+        super(CSV, self).set_dataset(res_df)
