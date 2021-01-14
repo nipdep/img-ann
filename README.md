@@ -1,4 +1,6 @@
-![Build Status](https://travis-ci.com/nipdep/img-ann.svg?branch=main)
+![Build Status](https://travis-ci.com/nipdep/img-ann.svg?branch=main)\
+![Version](https://img.shields.io/pypi/v/ImgAnn)
+
 # img-ann
 
 The ImgAnn is a package for a simplify operations in image annotated files.
