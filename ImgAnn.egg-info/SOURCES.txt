@@ -20,6 +20,12 @@ ImgAnn/operators/ImgData.py
 ImgAnn/operators/__init__.py
 ImgAnn/operators/coco.py
 ImgAnn/operators/csv.py
+ImgAnn/operators/imgdata.py
 ImgAnn/operators/operator.py
 ImgAnn/operators/pascalvoc.py
+imgann.egg-info/PKG-INFO
+imgann.egg-info/SOURCES.txt
+imgann.egg-info/dependency_links.txt
+imgann.egg-info/requires.txt
+imgann.egg-info/top_level.txt
 test/test_helloworld.py
