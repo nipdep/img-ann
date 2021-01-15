@@ -9,7 +9,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
 
-    name='ImgAnn',
+    name='imgann',
 
     version='0.5.1',
 
