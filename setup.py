@@ -11,7 +11,7 @@ setup(
 
     name='imgann',
 
-    version='0.5.1',
+    version='0.5.3',
 
     description='image annotation file operation provider.',
 
@@ -48,7 +48,7 @@ setup(
     # package_dir={'': 'src'},
 
     # py_modules = ["helloworld"],
-    packages=['ImgAnn','ImgAnn/operators'],
+    packages=['imgann','imgann/operators'],
 
     python_requires='>=3.5, <4',
 

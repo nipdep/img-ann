@@ -1,4 +1,4 @@
-from ImgAnn import convert
+from imgann import convert
 
 cnv = convert.Convertor()
 

@@ -1,2 +1,2 @@
-ImgAnn
-ImgAnn/operators
+imgann
+imgann/operators
