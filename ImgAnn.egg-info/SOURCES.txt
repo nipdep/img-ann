@@ -31,4 +31,10 @@ imgann/operators/csv.py
 imgann/operators/imgdata.py
 imgann/operators/operator.py
 imgann/operators/pascalvoc.py
+imgann/operators/__init__.py
+imgann/operators/coco.py
+imgann/operators/csv.py
+imgann/operators/imgdata.py
+imgann/operators/operator.py
+imgann/operators/pascalvoc.py
 test/test_helloworld.py
