@@ -5,6 +5,7 @@ import os
 import random
 import logging
 import pandas as pd
+import sys
 
 # set the logger
 logging.basicConfig()
@@ -56,11 +57,11 @@ class ImgData:
                     logger.error("Error: there are no files in given directory!")
             else:
                 for folder in folders:
-                    files = ImgData.ext_files(os.path.abspath(dataset_path) + "\\" + folder)
+                    files = ImgData.ext_files(os.path.abspath(dataset_path) + os.sep + folder)
                     imgFiles = ImgData.__filterImg(files)
                     if files:
                         data_list.extend(
-                            ImgData.list_creator(os.path.abspath(dataset_path + "\\" + folder), folder, imgFiles))
+                            ImgData.list_creator(os.path.abspath(dataset_path + os.sep + folder), folder, imgFiles))
                     else:
                         continue
 
@@ -81,7 +82,7 @@ class ImgData:
         """
         tol_list = []
         for file in files:
-            tol_list.append((file, folder, root + "\\" + file))
+            tol_list.append((file, folder, root + os.sep + file))
         return tol_list
 
     @staticmethod
@@ -92,7 +93,7 @@ class ImgData:
         """
         folders = []
         try:
-            assert os.path.exists(path), "path does not exists"
+            assert os.path.exists(path), print(f"{path} does not exists")
             folders = [x[1] for x in os.walk(path) if x[1] != []]
             if not folders:
                 if not [x for x in os.walk(path)]:    # case : given dir is a file

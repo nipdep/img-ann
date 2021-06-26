@@ -7,6 +7,7 @@ import pandas as pd
 import os
 import re
 import logging
+import sys
 
 # setup logger
 logging.basicConfig()
@@ -36,7 +37,7 @@ class PascalVOC(IOperator, ABC):
         tol_obj_list = []
         for file in files_list:
             
-            img_data, obj_list = self.__FileReader(os.path.abspath(path) + "\\" + file)
+            img_data, obj_list = self.__FileReader(os.path.abspath(path) + os.sep + file)
             image_id += 1
             img_data.append(image_id)
             obj_list = [i+[image_id] for i in obj_list]
